@@ -79,7 +79,7 @@ export default function InstagramPost() {
 
       // For debug.
       await new Promise(resolve => setTimeout(resolve, 1000));
-      const data = { result: "https://oaidalleapiprodscus.blob.core.windows.net/private/org-lva0pYNuT3Wni7piBZwkQWDs/user-8IDsSX9KauYDdCbIZMdYiiXx/img-IiCnz36TavHCK3t6fxKqvfkN.png?st=2023-03-11T09%3A59%3A51Z&se=2023-03-11T11%3A59%3A51Z&sp=r&sv=2021-08-06&sr=b&rscd=inline&rsct=image/png&skoid=6aaadede-4fb3-4698-a8f6-684d7786b067&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2023-03-10T23%3A20%3A05Z&ske=2023-03-11T23%3A20%3A05Z&sks=b&skv=2021-08-06&sig=UA4jjD5T%2BXJVlUDUaJNJDO64elLpbakF5QcfEZZ8BNI%3D"};
+      const data = { result: "./image.png"};
 
       setImageUrl(data.result);
     } catch(error) {
@@ -171,8 +171,8 @@ export default function InstagramPost() {
   return (
     <div>
       <Head>
-        <title>Instrgram post with ChatGPT</title>
-        <link rel="icon" href="/dog.png" />
+        <title>Instagram post with ChatGPT</title>
+        <link rel="icon" href="/image.png" />
       </Head>
       <Banner />
       <main className={styles.main}>
