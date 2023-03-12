@@ -12,17 +12,20 @@ export default function InstagramPost() {
   const [assistantPrompt, setAssistantPrompt] = useState("Welcome to my dessert adventure! 🍨🍎 As my first post, I'm sharing my all-time favorite dessert - warm apple pie with a scoop of vanilla ice cream, enjoyed during a beautiful sunset. There's something magical about the combination of sweet and tart flavors with a creamy finish. Who's ready for a slice? 🤤 #applepie #vanillaicecream #sunsetdessert #sweettoothsatisfied #dessertadventure #firstpost");
   const [userPrompt2, setUserPrompt2] = useState("Just answer what would be the best input for DALL-E to describe a pastry in a nice background in Savoie in winter.");
   const [isImageDescriptionDebug, setImageDescriptionIsDebug] = useState(false);
+  const [imageDescriptionDebug, setImageDescriptionDebug] = useState('');
   const [isImageDescriptionLoading, setImageDescriptionIsLoading] = useState(false);
   const [imageDescription, setImageDescription] = useState('');
   // Image generation generation
   const [imageGenerationInput, setImageGenerationInput] = useState("");
   const [isImageGenerationLoading, setImageGenerationIsLoading] = useState(false);
   const [isImageDebug, setImageDebug] = useState(false);
+  const [imageUrlDebug, setImageUrlDebug] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   // Caption
   const [userPrompt3, setUserPrompt3] = useState("This is the last day in Savoie. Generate a caption with a sense of humour, joy and famous hashtags.");
   const [isCaptionLoading, setIsCaptionLoading] = useState(false);
   const [isCaptionDebug, setIsCaptionDebug] = useState(false);
+  const [captionDebug, setCaptionDebug] = useState('');
   const [caption, setCaption] = useState('');
   // Instagram post
   const { logInToFB, shareInstagramPost } = Facebook();
@@ -57,7 +60,7 @@ export default function InstagramPost() {
       }
       else {
         await new Promise(resolve => setTimeout(resolve, 1000));
-        data = { result: "test"};
+        data = { result: imageDescriptionDebug};
       }
       setImageDescription(data.result);
       setImageGenerationInput(data.result);
@@ -89,7 +92,7 @@ export default function InstagramPost() {
       }
       else {
         await new Promise(resolve => setTimeout(resolve, 1000));
-        data = { result: "./image.png"};
+        data = { result: imageUrlDebug};
       }
 
       setImageUrl(data.result);
@@ -130,7 +133,7 @@ export default function InstagramPost() {
       }
       else {
         await new Promise(resolve => setTimeout(resolve, 1000));
-        data = { result: "Last day in Savoie and I'm feeling a bit like a croissant - flaky and in need of a good coffee. ☕️ But seriously, this trip has been a pastry lover's dream come true! From indulging in local favorites to enjoying them against stunning snowy backdrops, I'm leaving with a heart and stomach full of joy. 🥐❤️ #SavoieSatisfies #PastryParadise #SnowyScenes #CoffeeIsLife #NeverEnoughPastries"};
+        data = { result: captionDebug};
       }
 
       setCaption(data.result);
@@ -217,6 +220,9 @@ export default function InstagramPost() {
                 <input type="checkbox" checked={isImageDescriptionDebug} onChange={() => setImageDescriptionIsDebug(!isImageDescriptionDebug)} /> 
                 Debug
               </label>
+              {isImageDescriptionDebug && (
+                <textarea id="imageDescriptionDebug" type="text" value={imageDescriptionDebug} onChange={(event) => setImageDescriptionDebug(event.target.value)} />
+              )}
             </form>
           </div>
           {imageDescription && (
@@ -230,6 +236,9 @@ export default function InstagramPost() {
                 <input type="checkbox" checked={isImageDebug} onChange={() => setImageDebug(!isImageDebug)} /> 
                 Debug
               </label>
+              {isImageDebug && (
+                <textarea id="isImageDebug" type="text" value={imageUrlDebug} onChange={(event) => setImageUrlDebug(event.target.value)} />
+              )}
             </form>
           </div>
           )}
@@ -245,6 +254,9 @@ export default function InstagramPost() {
                 <input type="checkbox" checked={isCaptionDebug} onChange={() => setIsCaptionDebug(!isCaptionDebug)} /> 
                 Debug
               </label>
+              {isCaptionDebug && (
+                <textarea id="captionDebug" type="text" value={captionDebug} onChange={(event) => setCaptionDebug(event.target.value)} />
+              )}
             </form>
           </div>
           )}
