@@ -12,47 +12,54 @@ export default function InstagramPost() {
   const [userPrompt1, setUserPrompt1] = useState("Create an Instagram post of an apple pie with a ice cream on sunset. This is the first post of the account.");
   const [assistantPrompt, setAssistantPrompt] = useState("Welcome to my dessert adventure! 🍨🍎 As my first post, I'm sharing my all-time favorite dessert - warm apple pie with a scoop of vanilla ice cream, enjoyed during a beautiful sunset. There's something magical about the combination of sweet and tart flavors with a creamy finish. Who's ready for a slice? 🤤 #applepie #vanillaicecream #sunsetdessert #sweettoothsatisfied #dessertadventure #firstpost");
   const [userPrompt2, setUserPrompt2] = useState("Just answer what would be the best input for DALL-E to describe a pastry in a nice background in Savoie in winter.");
+  const [isImageDescriptionDebug, setImageDescriptionIsDebug] = useState(false);
   const [isImageDescriptionLoading, setImageDescriptionIsLoading] = useState(false);
   const [imageDescription, setImageDescription] = useState('');
   // Image generation generation
   const [imageGenerationInput, setImageGenerationInput] = useState("");
   const [isImageGenerationLoading, setImageGenerationIsLoading] = useState(false);
+  const [isImageDebug, setImageDebug] = useState(false);
   const [imageUrl, setImageUrl] = useState('');
   // Caption
   const [userPrompt3, setUserPrompt3] = useState("This is the last day in Savoie. Generate a caption with a sense of humour, joy and famous hashtags.");
   const [isCaptionLoading, setIsCaptionLoading] = useState(false);
+  const [isCaptionDebug, setIsCaptionDebug] = useState(false);
   const [caption, setCaption] = useState('');
   // Instagram post
   const { logInToFB, shareInstagramPost } = Facebook();
   const [isPostLoading, setIsPostLoading] = useState(false);
+  const [isPostDebug, setIsPostDebug] = useState(false);
 
   async function handleSubmitImageDescriptionInput(event) {
     event.preventDefault();
     setImageDescriptionIsLoading(true);
     try {
-      // const response = await fetch("/api/chat", {
-      //   method: "POST",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      //   body: JSON.stringify({ 
-      //     messages: [
-      //       {role: "system", content: systemPrompt},
-      //       {role: "user", content: userPrompt1},
-      //       {role: "assistant", content: assistantPrompt},
-      //       {role: "user", content: userPrompt2},
-      //   ] 
-      //   }),
-      // });
+      let data;
+      if (!isImageDescriptionDebug) {
+        const response = await fetch("/api/chat", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ 
+            messages: [
+              {role: "system", content: systemPrompt},
+              {role: "user", content: userPrompt1},
+              {role: "assistant", content: assistantPrompt},
+              {role: "user", content: userPrompt2},
+          ] 
+          }),
+        });
 
-      // const data = await response.json();
-      // if (response.status !== 200) {
-      //   throw data.error || new Error(`Request failed with status ${response.status}`);
-      // }
-      // For debug.
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      const data = { result: "test"};
-
+        data = await response.json();
+        if (response.status !== 200) {
+          throw data.error || new Error(`Request failed with status ${response.status}`);
+        }
+      }
+      else {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        data = { result: "test"};
+      }
       setImageDescription(data.result);
       setImageGenerationInput(data.result);
     } catch(error) {
@@ -66,22 +73,25 @@ export default function InstagramPost() {
     event.preventDefault();
     setImageGenerationIsLoading(true);
     try {
-      // const response = await fetch("/api/image", {
-      //   method: "POST",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      //   body: JSON.stringify({ description: imageGenerationInput }),
-      // });
+      let data;
+      if (!isImageDebug) {
+        const response = await fetch("/api/image", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ description: imageGenerationInput }),
+        });
 
-      // const data = await response.json();
-      // if (response.status !== 200) {
-      //   throw data.error || new Error(`Request failed with status ${response.status}`);
-      // }
-
-      // For debug.
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      const data = { result: "./image.png"};
+        data = await response.json();
+        if (response.status !== 200) {
+          throw data.error || new Error(`Request failed with status ${response.status}`);
+        }
+      }
+      else {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        data = { result: "./image.png"};
+      }
 
       setImageUrl(data.result);
     } catch(error) {
@@ -95,31 +105,34 @@ export default function InstagramPost() {
     event.preventDefault();
     setIsCaptionLoading(true);
     try {
-      // const response = await fetch("/api/chat", {
-      //   method: "POST",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      //   body: JSON.stringify({ 
-      //     messages: [
-      //       {role: "system", content: systemPrompt},
-      //       {role: "user", content: userPrompt1},
-      //       {role: "assistant", content: assistantPrompt},
-      //       {role: "user", content: userPrompt2},
-      //       {role: "assistant", content: imageGenerationInput},
-      //       {role: "user", content: userPrompt3},
-      //     ] 
-      //   }),
-      // });
+      let data;
+      if (!isCaptionDebug) {
+        const response = await fetch("/api/chat", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ 
+            messages: [
+              {role: "system", content: systemPrompt},
+              {role: "user", content: userPrompt1},
+              {role: "assistant", content: assistantPrompt},
+              {role: "user", content: userPrompt2},
+              {role: "assistant", content: imageGenerationInput},
+              {role: "user", content: userPrompt3},
+            ] 
+          }),
+        });
 
-      // const data = await response.json();
-      // if (response.status !== 200) {
-      //   throw data.error || new Error(`Request failed with status ${response.status}`);
-      // }
-
-      // For debug.
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      const data = { result: "Last day in Savoie and I'm feeling a bit like a croissant - flaky and in need of a good coffee. ☕️ But seriously, this trip has been a pastry lover's dream come true! From indulging in local favorites to enjoying them against stunning snowy backdrops, I'm leaving with a heart and stomach full of joy. 🥐❤️ #SavoieSatisfies #PastryParadise #SnowyScenes #CoffeeIsLife #NeverEnoughPastries"};
+        data = await response.json();
+        if (response.status !== 200) {
+          throw data.error || new Error(`Request failed with status ${response.status}`);
+        }
+      }
+      else {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        data = { result: "Last day in Savoie and I'm feeling a bit like a croissant - flaky and in need of a good coffee. ☕️ But seriously, this trip has been a pastry lover's dream come true! From indulging in local favorites to enjoying them against stunning snowy backdrops, I'm leaving with a heart and stomach full of joy. 🥐❤️ #SavoieSatisfies #PastryParadise #SnowyScenes #CoffeeIsLife #NeverEnoughPastries"};
+      }
 
       setCaption(data.result);
     } catch(error) {
@@ -133,9 +146,14 @@ export default function InstagramPost() {
     event.preventDefault();
     setIsPostLoading(true);
     try {
-      logInToFB();
-      shareInstagramPost(imageUrl, caption);
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      if (!isPostDebug) {
+        logInToFB();
+        shareInstagramPost(imageUrl, caption);
+      }
+      else {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+
       alert("Posted!");
     } catch(error) {
       console.error(error);
@@ -196,6 +214,10 @@ export default function InstagramPost() {
               <label htmlFor="userPrompt2">Instructions</label>
               <AutoSizeTextarea id="userPrompt2" type="text" value={userPrompt2} onChange={handleUserPrompt2Change} />
               <LoadingButton isLoading={isImageDescriptionLoading} type="submit">Generate image description</LoadingButton>
+              <label>
+                <input type="checkbox" checked={isImageDescriptionDebug} onChange={() => setImageDescriptionIsDebug(!isImageDescriptionDebug)} /> 
+                Debug
+              </label>
             </form>
           </div>
           {imageDescription && (
@@ -205,6 +227,10 @@ export default function InstagramPost() {
               <label htmlFor="imageGenerationInput">Image generation input</label>
               <AutoSizeTextarea id="imageGenerationInput" type="text" value={imageGenerationInput} onChange={handleImageGenerationInputChange} />
               <LoadingButton isLoading={isImageGenerationLoading} type="submit">Generate image</LoadingButton>
+              <label>
+                <input type="checkbox" checked={isImageDebug} onChange={() => setImageDebug(!isImageDebug)} /> 
+                Debug
+              </label>
             </form>
           </div>
           )}
@@ -216,6 +242,10 @@ export default function InstagramPost() {
               <label htmlFor="userPrompt3">Caption input</label>
               <AutoSizeTextarea id="userPrompt3" type="text" value={userPrompt3} onChange={handleUserPrompt3Change} />
               <LoadingButton isLoading={isCaptionLoading} type="submit">Generate caption</LoadingButton>
+              <label>
+                <input type="checkbox" checked={isCaptionDebug} onChange={() => setIsCaptionDebug(!isCaptionDebug)} /> 
+                Debug
+              </label>
             </form>
           </div>
           )}
@@ -226,6 +256,10 @@ export default function InstagramPost() {
             <AutoSizeTextarea id="caption" type="text" value={caption} onChange={handleCaptionChange} />
             <form onSubmit={handleSubmitPost}>
               <LoadingButton isLoading={isPostLoading} type="submit">Post</LoadingButton>
+              <label>
+                <input type="checkbox" checked={isPostDebug} onChange={() => setIsPostDebug(!isPostDebug)} /> 
+                Debug
+              </label>
             </form>
           </div>
           )}
