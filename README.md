@@ -5,7 +5,7 @@ ngrok http 3000 --region us
 The US region is required otherwise Facebook would detect the URL as malicious or abusive.
 
 Go to the Facebook login for Business app from the Meta for developers page of GourmetPastryTransformer: https://developers.facebook.com/apps/596915082341166/business-login/settings/.
-Copy the URL created with ngrok in "URI de redirection OAuth valides". Under "Paramètres OAuth client"
+Copy the URL created with ngrok in "URI de redirection OAuth valides". Under "Paramètres OAuth client".
 
 # OpenAI API Quickstart - Node.js example app
 

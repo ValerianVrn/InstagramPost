@@ -6,16 +6,20 @@ export function Facebook() {
   const [facebookUserAccessToken, setFacebookUserAccessToken] = useState("");
   
   useEffect(() => {
-    window.FB.getLoginStatus((response) => {
-      console.log(response.authResponse?.accessToken);
-      setFacebookUserAccessToken(response.authResponse?.accessToken);
-    });
+    getLoginStatus();
    }, []);
    
   /* --------------------------------------------------------
    *                      FACEBOOK LOGIN
    * --------------------------------------------------------
    */
+  const getLoginStatus = () => {
+    window.FB.getLoginStatus((response) => {
+      console.log(response.authResponse?.accessToken);
+      setFacebookUserAccessToken(response.authResponse?.accessToken);
+      return response.status;
+    });
+  };
 
   function logInToFB () {
     window.FB.login(
@@ -29,7 +33,7 @@ export function Facebook() {
     );
   };
 
-  function logInToFB() {
+  const logOutOfFB = () => {
     window.FB.logout(() => {
       setFacebookUserAccessToken(undefined);
     });
@@ -106,8 +110,12 @@ export function Facebook() {
   async function shareInstagramPost(imageUrl, postCaption) {
     setImageUrl(imageUrl);
     setPostCaption(postCaption);
+    console.log(imageUrl);
+    console.log(postCaption);
     const facebookPages = await getFacebookPages();
+    console.log(facebookPages[0].id);
     const instagramAccountId = await getInstagramAccountId(facebookPages[0].id);
+    console.log(instagramAccountId);
     const mediaObjectContainerId = await createMediaObjectContainer(
       instagramAccountId
     );
