@@ -60,7 +60,7 @@ export default function InstagramPost() {
       }
       else {
         await new Promise(resolve => setTimeout(resolve, 1000));
-        data = { result: imageDescriptionDebug};
+        data = { result: ""};
       }
       setImageDescription(data.result);
       setImageGenerationInput(data.result);
@@ -92,7 +92,7 @@ export default function InstagramPost() {
       }
       else {
         await new Promise(resolve => setTimeout(resolve, 1000));
-        data = { result: imageUrlDebug};
+        data = { result: ""};
       }
 
       setImageUrl(data.result);
@@ -133,7 +133,7 @@ export default function InstagramPost() {
       }
       else {
         await new Promise(resolve => setTimeout(resolve, 1000));
-        data = { result: captionDebug};
+        data = { result: ""};
       }
 
       setCaption(data.result);
@@ -219,12 +219,8 @@ export default function InstagramPost() {
                 <input type="checkbox" checked={isImageDescriptionDebug} onChange={() => setImageDescriptionIsDebug(!isImageDescriptionDebug)} /> 
                 Debug
               </label>
-              {isImageDescriptionDebug && (
-                <textarea id="imageDescriptionDebug" type="text" value={imageDescriptionDebug} onChange={(event) => setImageDescriptionDebug(event.target.value)} />
-              )}
             </form>
           </div>
-          {imageDescription && (
           <div className={styles.column}>
             <h3>Image</h3>
             <form onSubmit={handleSubmitImageGenerationInput}>
@@ -235,17 +231,10 @@ export default function InstagramPost() {
                 <input type="checkbox" checked={isImageDebug} onChange={() => setImageDebug(!isImageDebug)} /> 
                 Debug
               </label>
-              {isImageDebug && (
-                <textarea id="isImageDebug" type="text" value={imageUrlDebug} onChange={(event) => setImageUrlDebug(event.target.value)} />
-              )}
             </form>
           </div>
-          )}
-          {imageUrl && (
           <div className={styles.column}>
             <h3>Caption</h3>
-            <input type="text" value={imageUrl}  onChange={(event) => setImageUrl(event.target.value)} />
-            <img src={imageUrl} alt="Generated image" />
             <form onSubmit={handleSubmitCaption}>
               <label htmlFor="userPrompt3">Caption input</label>
               <textarea id="userPrompt3" type="text" value={userPrompt3} onChange={handleUserPrompt3Change} />
@@ -254,15 +243,12 @@ export default function InstagramPost() {
                 <input type="checkbox" checked={isCaptionDebug} onChange={() => setIsCaptionDebug(!isCaptionDebug)} /> 
                 Debug
               </label>
-              {isCaptionDebug && (
-                <textarea id="captionDebug" type="text" value={captionDebug} onChange={(event) => setCaptionDebug(event.target.value)} />
-              )}
             </form>
           </div>
-          )}
-          {caption && (
           <div className={styles.column}>
             <h1>Preview</h1>
+            <label htmlFor="imageUrl">Image URL</label>
+            <input type="text" value={imageUrl}  onChange={(event) => setImageUrl(event.target.value)} />
             <img src={imageUrl} alt="Generated Image" />
             <textarea id="caption" type="text" value={caption} onChange={handleCaptionChange} />
             <form onSubmit={handleSubmitPost}>
@@ -273,7 +259,6 @@ export default function InstagramPost() {
               </label>
             </form>
           </div>
-          )}
         </div>
       </main>
     </div>

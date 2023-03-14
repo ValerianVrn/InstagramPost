@@ -48,7 +48,7 @@
   border-radius: 4px;
   margin-bottom: 24px;
   outline-color: #10a37f;  
-  width: 100%;
+  /* width: 100%; */
 }
 .main ::placeholder {
   color: #8e8ea0;
@@ -70,13 +70,9 @@
 }
 .main textarea {
   resize: none;
-  /* max-height: "200px";
-  min-height: "60px"; */
   height: 80px;
 }
 .main img {
-  /* max-height: "200px";
-  min-height: "60px"; */
   max-width: 100%;
   max-height: 100%;
 }
