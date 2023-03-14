@@ -28,7 +28,7 @@ export default function InstagramPost() {
   const [captionDebug, setCaptionDebug] = useState('');
   const [caption, setCaption] = useState('');
   // Instagram post
-  const { logInToFB, shareInstagramPost } = Facebook();
+  const { loginAndPublish } = Facebook();
   const [isPostLoading, setIsPostLoading] = useState(false);
   const [isPostDebug, setIsPostDebug] = useState(false);
 
@@ -149,8 +149,7 @@ export default function InstagramPost() {
     setIsPostLoading(true);
     try {
       if (!isPostDebug) {
-        logInToFB();
-        shareInstagramPost(imageUrl, caption);
+        loginAndPublish(imageUrl, caption);
       }
       else {
         await new Promise(resolve => setTimeout(resolve, 1000));
@@ -245,6 +244,7 @@ export default function InstagramPost() {
           {imageUrl && (
           <div className={styles.column}>
             <h3>Caption</h3>
+            <input type="text" value={imageUrl}  onChange={(event) => setImageUrl(event.target.value)} />
             <img src={imageUrl} alt="Generated image" />
             <form onSubmit={handleSubmitCaption}>
               <label htmlFor="userPrompt3">Caption input</label>
