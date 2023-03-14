@@ -32,7 +32,7 @@
 }
 /* .main h3 {
   font-size: 32px;
-  line-height: 40px;
+  line-height: 40px;  
   font-weight: bold;
   color: #202123;
   margin: 0px 0 40px;
@@ -48,7 +48,7 @@
   border-radius: 4px;
   margin-bottom: 24px;
   outline-color: #10a37f;  
-  /* width: 100%; */
+  width: 100%;
 }
 .main ::placeholder {
   color: #8e8ea0;

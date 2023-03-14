@@ -47,7 +47,6 @@ export default function InstagramPost() {
       if (response.status !== 200) {
         throw data.error || new Error(`Request failed with status ${response.status}`);
       }
-      setImageDescription(data.result);
       setImageGenerationInput(data.result);
     } catch(error) {
       console.error(error);
