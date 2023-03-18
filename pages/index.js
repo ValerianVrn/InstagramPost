@@ -4,8 +4,9 @@ import styles from "./index.module.css";
 import Banner from './components/Banner.js';
 import Facebook from './Facebook';
 import LoadingButton from './components/LoadingButton.js';
+import { withAuth } from '../middleware/auth'
 
-export default function InstagramPost() {
+function InstagramPost() {
   // Image description generation
   const [systemPrompt, setSystemPrompt] = useState("You are a charming Instagramer who posts pastries in nice backgrounds with a touch of humor.");
   const [userPrompt1, setUserPrompt1] = useState("Create an Instagram post of an apple pie with a ice cream on sunset. This is the first post of the account.");
@@ -212,3 +213,5 @@ export default function InstagramPost() {
     </div>
   );
 }
+
+export default withAuth(InstagramPost)
