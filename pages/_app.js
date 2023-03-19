@@ -1,6 +1,6 @@
 import React from 'react'
 import App from 'next/app'
-import { AuthProvider } from './components/AuthContext';
+import AuthProvider from './components/AuthContext';
 
 class MyApp extends App {
   state = {
