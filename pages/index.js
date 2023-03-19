@@ -138,34 +138,6 @@ function InstagramPost() {
     setIsPostLoading(false);
   }
 
-  function handleSystemPromptChange(event) {
-    setSystemPrompt(event.target.value);
-  }
-
-  function handleUserPrompt1Change(event) {
-    setUserPrompt1(event.target.value);
-  }
-
-  function handleAssistantPromptChange(event) {
-    setAssistantPrompt(event.target.value);
-  }
-
-  function handleUserPrompt2Change(event) {
-    setUserPrompt2(event.target.value);
-  }
-
-  function handleImageGenerationInputChange(event) {
-    setImageGenerationInput(event.target.value);
-  }
-
-  function handleUserPrompt3Change(event) {
-    setUserPrompt3(event.target.value);
-  }
-
-  function handleCaptionChange(event) {
-    setCaption(event.target.value);
-  }
-
   return (
     <div>
       <Head>
@@ -178,17 +150,17 @@ function InstagramPost() {
           <div className={styles.column}>            
             <h3>Tuning</h3>
             <label htmlFor="systemPrompt">IA profile</label>
-            <textarea id="systemPrompt" type="text" value={systemPrompt} onChange={handleSystemPromptChange} />
+            <textarea id="systemPrompt" type="text" value={systemPrompt} onChange={(event) => setSystemPrompt(event.target.value)} />
             <label htmlFor="userPrompt1">User question</label>
-            <textarea id="userPrompt1" type="text" value={userPrompt1} onChange={handleUserPrompt1Change} />
+            <textarea id="userPrompt1" type="text" value={userPrompt1} onChange={(event) => setUserPrompt1(event.target.value)} />
             <label htmlFor="assistantPrompt">IA answer</label>
-            <textarea id="assistantPrompt" type="text" value={assistantPrompt} onChange={handleAssistantPromptChange} />
+            <textarea id="assistantPrompt" type="text" value={assistantPrompt} onChange={(event) => setAssistantPrompt(event.target.value)} />
           </div>
           <div className={styles.column}>
             <h3>Topic</h3>
             <form onSubmit={handleSubmitImageDescriptionInput}>
               <label htmlFor="userPrompt2">Instructions</label>
-              <textarea id="userPrompt2" type="text" value={userPrompt2} onChange={handleUserPrompt2Change} />
+              <textarea id="userPrompt2" type="text" value={userPrompt2} onChange={(event) => setUserPrompt2(event.target.value)} />
               <LoadingButton isLoading={isImageDescriptionLoading} type="submit">Generate image description</LoadingButton>
             </form>
           </div>
@@ -196,7 +168,7 @@ function InstagramPost() {
             <h3>Image</h3>
             <form onSubmit={handleSubmitImageGenerationInput}>
               <label htmlFor="imageGenerationInput">Image generation input</label>
-              <textarea id="imageGenerationInput" type="text" value={imageGenerationInput} onChange={handleImageGenerationInputChange} />
+              <textarea id="imageGenerationInput" type="text" value={imageGenerationInput} onChange={(event) => setImageGenerationInput(event.target.value)} />
               <LoadingButton isLoading={isImageGenerationLoading} type="submit">Generate image</LoadingButton>
             </form>
           </div>
@@ -204,7 +176,7 @@ function InstagramPost() {
             <h3>Caption</h3>
             <form onSubmit={handleSubmitCaption}>
               <label htmlFor="userPrompt3">Caption input</label>
-              <textarea id="userPrompt3" type="text" value={userPrompt3} onChange={handleUserPrompt3Change} />
+              <textarea id="userPrompt3" type="text" value={userPrompt3} onChange={(event) => setUserPrompt3(event.target.value)} />
               <LoadingButton isLoading={isCaptionLoading} type="submit">Generate caption</LoadingButton>
             </form>
           </div>
@@ -213,7 +185,7 @@ function InstagramPost() {
             <label htmlFor="imageUrl">Image URL</label>
             <input type="text" value={imageUrl}  onChange={(event) => setImageUrl(event.target.value)} />
             <img src={imageUrl} alt="Generated Image" />
-            <textarea id="caption" type="text" value={caption} onChange={handleCaptionChange} />
+            <textarea id="caption" type="text" value={caption} onChange={(event) => setCaption(event.target.value)} />
             <form onSubmit={handleSubmitPost}>
               <LoadingButton isLoading={isPostLoading} type="submit">Post</LoadingButton>
             </form>
