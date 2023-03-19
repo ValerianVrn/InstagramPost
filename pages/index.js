@@ -1,12 +1,22 @@
 import Head from "next/head";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "./index.module.css";
 import Banner from './components/Banner.js';
 import Facebook from './Facebook';
 import LoadingButton from './components/LoadingButton.js';
-import { withAuth } from '../middleware/auth'
+import { useAuth } from './components/AuthContext';
+import { useRouter } from 'next/router';
 
 function InstagramPost() {
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push('/login');
+    }
+  }, [isAuthenticated]);
+
   // Image description generation
   const [systemPrompt, setSystemPrompt] = useState("You are a charming Instagramer who posts pastries in nice backgrounds with a touch of humor.");
   const [userPrompt1, setUserPrompt1] = useState("Create an Instagram post of an apple pie with a ice cream on sunset. This is the first post of the account.");
@@ -214,4 +224,4 @@ function InstagramPost() {
   );
 }
 
-export default withAuth(InstagramPost)
+export default InstagramPost;

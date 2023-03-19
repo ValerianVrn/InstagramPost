@@ -1,5 +1,6 @@
 import React from 'react'
 import App from 'next/app'
+import { AuthProvider } from './components/AuthContext';
 
 class MyApp extends App {
   state = {
@@ -41,8 +42,12 @@ class MyApp extends App {
           return <div>Loading...</div>;
         }
     
-        return <Component {...pageProps} />;
-      }
+        return (
+        <AuthProvider>
+          <Component {...pageProps} />
+        </AuthProvider>
+        );
+  }
 }
 
 export default MyApp

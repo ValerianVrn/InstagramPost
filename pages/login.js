@@ -1,10 +1,12 @@
-// pages/login.js
-
-import { useState } from 'react';
+import { useContext, useState } from 'react';
+import { useRouter } from 'next/router';
+import { AuthContext } from './components/AuthContext';
 
 function LoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const router = useRouter();
+  const { setIsAuthenticated } = useContext(AuthContext);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -20,7 +22,8 @@ function LoginPage() {
 
     if (response.ok) {
       // User is authenticated, redirect to protected page
-      window.location.href = '/';
+      setIsAuthenticated(true);
+      router.push('/');
     } else {
       // Authentication failed, display error message
       alert('Invalid username or password');

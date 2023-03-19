@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt';
 const USERNAME = 'gourmet';
 const PASSWORD = 'gpt';
 
-export default async function handler(req, res) {
+export default async function (req, res) {
     
   if (req.method === 'POST') {
     const { username, password } = req.body;
