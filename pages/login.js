@@ -32,12 +32,9 @@ function LoginPage() {
     //   // Authentication failed, display error message
     //   alert('Invalid username or password');
     // }
-    // Generate a salt to add to the hash
-    const salt = await bcrypt.genSalt(10);
-    // Hash the password with the salt
-    const hash = await bcrypt.hash(PASSWORD, salt);
+
     // Verify the username and password against a database or other source of authorized users
-    if (username === USERNAME && bcrypt.compareSync(password, hash)) {
+    if (username === USERNAME && password === PASSWORD) {
       // User is authenticated, redirect to protected page
       setIsAuthenticated(true);
       router.push('/');
