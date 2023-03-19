@@ -14,6 +14,7 @@ function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    clientSideApi();
     // GitHub Pages does not authorized server-side programs.
     // // Send login data to server for validation
     // const response = await fetch('/api/login', {
@@ -32,6 +33,9 @@ function LoginPage() {
     //   // Authentication failed, display error message
     //   alert('Invalid username or password');
     // }
+  };
+
+  function clientSideApi() {
 
     // Verify the username and password against a database or other source of authorized users
     if (username === USERNAME && password === PASSWORD) {
@@ -42,7 +46,7 @@ function LoginPage() {
       // Authentication failed, display error message
       alert('Invalid username or password');
     }
-  };
+  }
 
   return (
     <form onSubmit={handleSubmit}>
