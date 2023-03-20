@@ -3,10 +3,9 @@ import { useEffect, useState } from "react";
 import styles from "./index.module.css";
 import Banner from './components/Banner.js';
 import Facebook from './Facebook';
-import LoadingButton from './components/LoadingButton.js';
 import { useAuth } from './components/AuthContext';
 import { useRouter } from 'next/router';
-import { Accordion, Button, Card } from 'react-bootstrap';
+import { Accordion, Button, Card, Spinner } from 'react-bootstrap';
 
 function InstagramPost() {
   const { isAuthenticated } = useAuth();
@@ -165,7 +164,10 @@ function InstagramPost() {
               <form onSubmit={handleSubmitImageDescriptionInput}>
                 <label htmlFor="userPrompt2" className="form-label">Instructions</label>
                 <textarea id="userPrompt2" className="form-control" type="text" value={userPrompt2} onChange={(event) => setUserPrompt2(event.target.value)} />
-                <LoadingButton isLoading={isImageDescriptionLoading} className="btn btn-primary">Generate image description</LoadingButton>
+                <Button variant="primary" disabled={isImageDescriptionLoading} type="submit">
+                {!isImageDescriptionLoading ? 'Generate image description':
+                  <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />}
+                </Button>
               </form>
             </Accordion.Body>
           </Accordion.Item>
@@ -175,7 +177,10 @@ function InstagramPost() {
               <form onSubmit={handleSubmitImageGenerationInput}>
                 <label htmlFor="imageGenerationInput" className="form-label">Image generation input</label>
                 <textarea id="imageGenerationInput" className="form-control" type="text" value={imageGenerationInput} onChange={(event) => setImageGenerationInput(event.target.value)} />
-                <LoadingButton isLoading={isImageGenerationLoading} className="btn btn-primary">Generate image</LoadingButton>
+                <Button variant="primary" disabled={isImageDescriptionLoading} type="submit">
+                {!isImageGenerationLoading ? 'Generate image':
+                  <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />}
+                </Button>
               </form>
             </Accordion.Body>
           </Accordion.Item>
@@ -185,7 +190,10 @@ function InstagramPost() {
               <form onSubmit={handleSubmitCaption}>
                 <label htmlFor="userPrompt3" className="form-label">Caption input</label>
                 <textarea id="userPrompt3" className="form-control" type="text" value={userPrompt3} onChange={(event) => setUserPrompt3(event.target.value)} />
-                <LoadingButton isLoading={isCaptionLoading} className="btn btn-primary">Generate caption</LoadingButton>
+                <Button variant="primary" disabled={isCaptionLoading} type="submit">
+                {!isCaptionLoading ? 'Generate caption':
+                  <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />}
+                </Button>
               </form>
             </Accordion.Body>
           </Accordion.Item>
@@ -198,7 +206,10 @@ function InstagramPost() {
               <Card.Text>
               <textarea id="caption" className="form-control" type="text" value={caption} onChange={(event) => setCaption(event.target.value)} />
               <form onSubmit={handleSubmitPost}>
-                <Button variant="success" type="submit">Post</Button>
+                <Button variant="success" disabled={isPostLoading} type="submit">
+                {!isPostLoading ? 'Post':
+                  <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />}
+                </Button>
               </form>
               </Card.Text>
             </Card.Body>
