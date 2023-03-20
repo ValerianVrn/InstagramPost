@@ -6,6 +6,7 @@ import Facebook from './Facebook';
 import LoadingButton from './components/LoadingButton.js';
 import { useAuth } from './components/AuthContext';
 import { useRouter } from 'next/router';
+import { Accordion, Button, Card } from 'react-bootstrap';
 
 function InstagramPost() {
   const { isAuthenticated } = useAuth();
@@ -145,52 +146,64 @@ function InstagramPost() {
         <link rel="icon" href="/image.png" />
       </Head>
       <Banner />
-      <main className={styles.main}>
-        <div style={{ display: 'flex', width: 'auto', height:'auto' }}>
-          <div className={styles.column}>            
-            <h3>Tuning</h3>
-            <label htmlFor="systemPrompt">IA profile</label>
-            <textarea id="systemPrompt" type="text" value={systemPrompt} onChange={(event) => setSystemPrompt(event.target.value)} />
-            <label htmlFor="userPrompt1">User question</label>
-            <textarea id="userPrompt1" type="text" value={userPrompt1} onChange={(event) => setUserPrompt1(event.target.value)} />
-            <label htmlFor="assistantPrompt">IA answer</label>
-            <textarea id="assistantPrompt" type="text" value={assistantPrompt} onChange={(event) => setAssistantPrompt(event.target.value)} />
-          </div>
-          <div className={styles.column}>
-            <h3>Topic</h3>
-            <form onSubmit={handleSubmitImageDescriptionInput}>
-              <label htmlFor="userPrompt2">Instructions</label>
-              <textarea id="userPrompt2" type="text" value={userPrompt2} onChange={(event) => setUserPrompt2(event.target.value)} />
-              <LoadingButton isLoading={isImageDescriptionLoading} class="btn btn-primary">Generate image description</LoadingButton>
-            </form>
-          </div>
-          <div className={styles.column}>
-            <h3>Image</h3>
-            <form onSubmit={handleSubmitImageGenerationInput}>
-              <label htmlFor="imageGenerationInput">Image generation input</label>
-              <textarea id="imageGenerationInput" type="text" value={imageGenerationInput} onChange={(event) => setImageGenerationInput(event.target.value)} />
-              <LoadingButton isLoading={isImageGenerationLoading} class="btn btn-primary">Generate image</LoadingButton>
-            </form>
-          </div>
-          <div className={styles.column}>
-            <h3>Caption</h3>
-            <form onSubmit={handleSubmitCaption}>
-              <label htmlFor="userPrompt3">Caption input</label>
-              <textarea id="userPrompt3" type="text" value={userPrompt3} onChange={(event) => setUserPrompt3(event.target.value)} />
-              <LoadingButton isLoading={isCaptionLoading} class="btn btn-primary">Generate caption</LoadingButton>
-            </form>
-          </div>
-          <div className={styles.column}>
-            <h1>Preview</h1>
-            <label htmlFor="imageUrl">Image URL</label>
-            <input type="text" value={imageUrl}  onChange={(event) => setImageUrl(event.target.value)} />
-            <img src={imageUrl} alt="Generated Image" />
-            <textarea id="caption" type="text" value={caption} onChange={(event) => setCaption(event.target.value)} />
-            <form onSubmit={handleSubmitPost}>
-              <LoadingButton isLoading={isPostLoading} class="btn btn-success">Post</LoadingButton>
-            </form>
-          </div>
-        </div>
+      <main>
+        <Accordion defaultActiveKey="1" className="container-lg">
+          <Accordion.Item eventKey="0">
+            <Accordion.Header>Tuning</Accordion.Header>
+            <Accordion.Body>
+              <label htmlFor="systemPrompt" className="form-label">IA profile</label>
+              <textarea id="systemPrompt" className="form-control" type="text" value={systemPrompt} onChange={(event) => setSystemPrompt(event.target.value)} />
+              <label htmlFor="userPrompt1" className="form-label">User question</label>
+              <textarea id="userPrompt1" className="form-control" type="text" value={userPrompt1} onChange={(event) => setUserPrompt1(event.target.value)} />
+              <label htmlFor="assistantPrompt" className="form-label">IA answer</label>
+              <textarea id="assistantPrompt" className="form-control" type="text" value={assistantPrompt} onChange={(event) => setAssistantPrompt(event.target.value)} />
+            </Accordion.Body>
+          </Accordion.Item>
+          <Accordion.Item eventKey="1">
+            <Accordion.Header>Topic</Accordion.Header>
+            <Accordion.Body>
+              <form onSubmit={handleSubmitImageDescriptionInput}>
+                <label htmlFor="userPrompt2" className="form-label">Instructions</label>
+                <textarea id="userPrompt2" className="form-control" type="text" value={userPrompt2} onChange={(event) => setUserPrompt2(event.target.value)} />
+                <LoadingButton isLoading={isImageDescriptionLoading} className="btn btn-primary">Generate image description</LoadingButton>
+              </form>
+            </Accordion.Body>
+          </Accordion.Item>
+          <Accordion.Item eventKey="2">
+            <Accordion.Header>Image</Accordion.Header>
+            <Accordion.Body>
+              <form onSubmit={handleSubmitImageGenerationInput}>
+                <label htmlFor="imageGenerationInput" className="form-label">Image generation input</label>
+                <textarea id="imageGenerationInput" className="form-control" type="text" value={imageGenerationInput} onChange={(event) => setImageGenerationInput(event.target.value)} />
+                <LoadingButton isLoading={isImageGenerationLoading} className="btn btn-primary">Generate image</LoadingButton>
+              </form>
+            </Accordion.Body>
+          </Accordion.Item>
+          <Accordion.Item eventKey="3">
+            <Accordion.Header>Caption</Accordion.Header>
+            <Accordion.Body>
+              <form onSubmit={handleSubmitCaption}>
+                <label htmlFor="userPrompt3" className="form-label">Caption input</label>
+                <textarea id="userPrompt3" className="form-control" type="text" value={userPrompt3} onChange={(event) => setUserPrompt3(event.target.value)} />
+                <LoadingButton isLoading={isCaptionLoading} className="btn btn-primary">Generate caption</LoadingButton>
+              </form>
+            </Accordion.Body>
+          </Accordion.Item>
+          <Card>
+            <Card.Header>Preview</Card.Header>
+            <Card.Img variant="top" src={imageUrl}></Card.Img>
+            <Card.Body>
+              <label htmlFor="imageUrl" className="form-label">Image URL</label>
+              <input type="text" className="form-control" value={imageUrl} onChange={(event) => setImageUrl(event.target.value)} />
+              <Card.Text>
+              <textarea id="caption" className="form-control" type="text" value={caption} onChange={(event) => setCaption(event.target.value)} />
+              <form onSubmit={handleSubmitPost}>
+                <Button variant="success" type="submit">Post</Button>
+              </form>
+              </Card.Text>
+            </Card.Body>
+          </Card>
+        </Accordion>
       </main>
     </div>
   );
