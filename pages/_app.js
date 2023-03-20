@@ -1,6 +1,7 @@
 import React from 'react'
 import App from 'next/app'
 import AuthProvider from './components/AuthContext';
+import 'bootstrap/dist/css/bootstrap.css'
 
 class MyApp extends App {
   state = {

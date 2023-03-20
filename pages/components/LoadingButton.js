@@ -6,10 +6,7 @@ function LoadingButton(props) {
   const { isLoading, className = '', children, ...rest } = props;
 
   return (
-    <button
-      className={`loading-button ${className}`}
-      disabled={isLoading}
-      {...rest}
+    <button className={`loading-button ${className}`} disabled={isLoading} type="submit" {...rest}
     >
       {isLoading && (
         <FontAwesomeIcon icon={faSpinner} spin className="loading-icon" />

@@ -161,7 +161,7 @@ function InstagramPost() {
             <form onSubmit={handleSubmitImageDescriptionInput}>
               <label htmlFor="userPrompt2">Instructions</label>
               <textarea id="userPrompt2" type="text" value={userPrompt2} onChange={(event) => setUserPrompt2(event.target.value)} />
-              <LoadingButton isLoading={isImageDescriptionLoading} type="submit">Generate image description</LoadingButton>
+              <LoadingButton isLoading={isImageDescriptionLoading} class="btn btn-primary">Generate image description</LoadingButton>
             </form>
           </div>
           <div className={styles.column}>
@@ -169,7 +169,7 @@ function InstagramPost() {
             <form onSubmit={handleSubmitImageGenerationInput}>
               <label htmlFor="imageGenerationInput">Image generation input</label>
               <textarea id="imageGenerationInput" type="text" value={imageGenerationInput} onChange={(event) => setImageGenerationInput(event.target.value)} />
-              <LoadingButton isLoading={isImageGenerationLoading} type="submit">Generate image</LoadingButton>
+              <LoadingButton isLoading={isImageGenerationLoading} class="btn btn-primary">Generate image</LoadingButton>
             </form>
           </div>
           <div className={styles.column}>
@@ -177,7 +177,7 @@ function InstagramPost() {
             <form onSubmit={handleSubmitCaption}>
               <label htmlFor="userPrompt3">Caption input</label>
               <textarea id="userPrompt3" type="text" value={userPrompt3} onChange={(event) => setUserPrompt3(event.target.value)} />
-              <LoadingButton isLoading={isCaptionLoading} type="submit">Generate caption</LoadingButton>
+              <LoadingButton isLoading={isCaptionLoading} class="btn btn-primary">Generate caption</LoadingButton>
             </form>
           </div>
           <div className={styles.column}>
@@ -187,7 +187,7 @@ function InstagramPost() {
             <img src={imageUrl} alt="Generated Image" />
             <textarea id="caption" type="text" value={caption} onChange={(event) => setCaption(event.target.value)} />
             <form onSubmit={handleSubmitPost}>
-              <LoadingButton isLoading={isPostLoading} type="submit">Post</LoadingButton>
+              <LoadingButton isLoading={isPostLoading} class="btn btn-success">Post</LoadingButton>
             </form>
           </div>
         </div>
