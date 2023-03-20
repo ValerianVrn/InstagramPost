@@ -1,13 +1,16 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import App from 'next/app'
 import AuthProvider from './components/AuthContext';
+import 'bootstrap/dist/css/bootstrap.css'
 
-class MyApp extends App {
-  state = {
-    sdkInitialized: false
-  };
-    
-  componentDidMount() {
+export default function MyApp({ Component, pageProps }) {
+  // const state = {
+  //   sdkInitialized: false
+  // };
+  const [sdkInitialized, setSdkInitialized] = useState(false);
+
+  useEffect(() => {
+
     // Initialize Facebook SDK.
     window.fbAsyncInit = () => {
       FB.init({
@@ -20,9 +23,7 @@ class MyApp extends App {
           });
     
           // Set the initialization status to true
-          this.setState({
-            sdkInitialized: true
-          });
+          setSdkInitialized(true);
         };
     
         // Load the Facebook SDK asynchronously
@@ -33,12 +34,13 @@ class MyApp extends App {
           js.src = "https://connect.facebook.net/en_US/sdk.js";
           fjs.parentNode.insertBefore(js, fjs);
         }(document, 'script', 'facebook-jssdk'));
-      }
+      // }
     
-      render() {
-        const { Component, pageProps } = this.props;
-    
-        if (!this.state.sdkInitialized) {
+      // render() {
+        // const { Component, pageProps } = this.props;
+      }, []);
+
+        if (!sdkInitialized) {
           return <div>Loading...</div>;
         }
     
@@ -47,7 +49,7 @@ class MyApp extends App {
           <Component {...pageProps} />
         </AuthProvider>
         );
-  }
+  // }
 }
 
-export default MyApp
+// export default MyApp
