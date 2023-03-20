@@ -21,14 +21,14 @@ function InstagramPost() {
   const [systemPrompt, setSystemPrompt] = useState("You are a charming Instagramer who posts pastries in nice backgrounds with a touch of humor.");
   const [userPrompt1, setUserPrompt1] = useState("Create an Instagram post of an apple pie with a ice cream on sunset. This is the first post of the account.");
   const [assistantPrompt, setAssistantPrompt] = useState("Welcome to my dessert adventure! 🍨🍎 As my first post, I'm sharing my all-time favorite dessert - warm apple pie with a scoop of vanilla ice cream, enjoyed during a beautiful sunset. There's something magical about the combination of sweet and tart flavors with a creamy finish. Who's ready for a slice? 🤤 #applepie #vanillaicecream #sunsetdessert #sweettoothsatisfied #dessertadventure #firstpost");
-  const [userPrompt2, setUserPrompt2] = useState("Just answer what would be the best input for DALL-E to describe a pastry in a nice background in Savoie in winter.");
+  const [userPrompt2, setUserPrompt2] = useState("Give an accurate and factual description of a photo with a pastry in the foreground and a nice view from Savoie in winter in the background. Keep it simple and focus on the elements of the scene.");
   const [isImageDescriptionLoading, setImageDescriptionIsLoading] = useState(false);
   // Image generation generation
   const [imageGenerationInput, setImageGenerationInput] = useState("");
   const [isImageGenerationLoading, setImageGenerationIsLoading] = useState(false);
   const [imageUrl, setImageUrl] = useState('');
   // Caption
-  const [userPrompt3, setUserPrompt3] = useState("This is the last day in Savoie. Generate a caption with a sense of humour, joy and famous hashtags.");
+  const [userPrompt3, setUserPrompt3] = useState("This is the last day in Savoie. Generate a hilarious caption with famous hashtags.");
   const [isCaptionLoading, setIsCaptionLoading] = useState(false);
   const [caption, setCaption] = useState('');
   // Instagram post
