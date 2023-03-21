@@ -4,9 +4,6 @@ import AuthProvider from './components/AuthContext';
 import 'bootstrap/dist/css/bootstrap.css'
 
 export default function MyApp({ Component, pageProps }) {
-  // const state = {
-  //   sdkInitialized: false
-  // };
   const [sdkInitialized, setSdkInitialized] = useState(false);
 
   useEffect(() => {
@@ -34,10 +31,6 @@ export default function MyApp({ Component, pageProps }) {
           js.src = "https://connect.facebook.net/en_US/sdk.js";
           fjs.parentNode.insertBefore(js, fjs);
         }(document, 'script', 'facebook-jssdk'));
-      // }
-    
-      // render() {
-        // const { Component, pageProps } = this.props;
       }, []);
 
         if (!sdkInitialized) {
@@ -49,7 +42,4 @@ export default function MyApp({ Component, pageProps }) {
           <Component {...pageProps} />
         </AuthProvider>
         );
-  // }
 }
-
-// export default MyApp
