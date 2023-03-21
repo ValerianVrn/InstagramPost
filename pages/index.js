@@ -1,11 +1,10 @@
 import Head from "next/head";
 import { useEffect, useState } from "react";
 import styles from "./index.module.css";
-import Banner from './components/Banner.js';
 import Facebook from './Facebook';
 import { useAuth } from './components/AuthContext';
 import { useRouter } from 'next/router';
-import { Accordion, Button, Card, Spinner } from 'react-bootstrap';
+import { Accordion, Button, Card, Container, Navbar, Spinner } from 'react-bootstrap';
 
 function InstagramPost() {
   const { isAuthenticated } = useAuth();
@@ -144,26 +143,41 @@ function InstagramPost() {
         <title>Instagram post with ChatGPT</title>
         <link rel="icon" href="/image.png" />
       </Head>
-      <Banner />
+      <Navbar bg="dark" variant="dark">
+        <Container>
+          <Navbar.Brand href="/">
+            <img alt="" src="/image.png" width="30" height="30" className="d-inline-block align-top" />{' '}
+            Instagram post with ChatGPT
+          </Navbar.Brand>
+        </Container>
+      </Navbar>
       <main>
         <Accordion defaultActiveKey="1" className="container-lg">
           <Accordion.Item eventKey="0">
             <Accordion.Header>Tuning</Accordion.Header>
             <Accordion.Body>
-              <label htmlFor="systemPrompt" className="form-label">IA profile</label>
-              <textarea id="systemPrompt" className="form-control" type="text" value={systemPrompt} onChange={(event) => setSystemPrompt(event.target.value)} />
-              <label htmlFor="userPrompt1" className="form-label">User question</label>
-              <textarea id="userPrompt1" className="form-control" type="text" value={userPrompt1} onChange={(event) => setUserPrompt1(event.target.value)} />
-              <label htmlFor="assistantPrompt" className="form-label">IA answer</label>
-              <textarea id="assistantPrompt" className="form-control" type="text" value={assistantPrompt} onChange={(event) => setAssistantPrompt(event.target.value)} />
+              <div className="mb-3">
+                <label htmlFor="systemPrompt" className="form-label">IA profile</label>
+                <textarea id="systemPrompt" className="form-control" type="text" rows="4" value={systemPrompt} onChange={(event) => setSystemPrompt(event.target.value)} />
+              </div>
+              <div className="mb-3">
+                <label htmlFor="userPrompt1" className="form-label">User question</label>
+                <textarea id="userPrompt1" className="form-control" type="text" rows="4" value={userPrompt1} onChange={(event) => setUserPrompt1(event.target.value)} />
+              </div>
+              <div className="mb-3">
+                <label htmlFor="assistantPrompt" className="form-label">IA answer</label>
+                <textarea id="assistantPrompt" className="form-control" type="text" rows="10" value={assistantPrompt} onChange={(event) => setAssistantPrompt(event.target.value)} />
+              </div>
             </Accordion.Body>
           </Accordion.Item>
           <Accordion.Item eventKey="1">
             <Accordion.Header>Topic</Accordion.Header>
             <Accordion.Body>
               <form onSubmit={handleSubmitImageDescriptionInput}>
-                <label htmlFor="userPrompt2" className="form-label">Instructions</label>
-                <textarea id="userPrompt2" className="form-control" type="text" value={userPrompt2} onChange={(event) => setUserPrompt2(event.target.value)} />
+                <div className="mb-3">
+                  <label htmlFor="userPrompt2" className="form-label">Instructions</label>
+                  <textarea id="userPrompt2" className="form-control" type="text" rows="4" value={userPrompt2} onChange={(event) => setUserPrompt2(event.target.value)} />
+                </div>
                 <Button variant="primary" disabled={isImageDescriptionLoading} type="submit">
                 {!isImageDescriptionLoading ? 'Generate image description':
                   <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />}
@@ -175,8 +189,10 @@ function InstagramPost() {
             <Accordion.Header>Image</Accordion.Header>
             <Accordion.Body>
               <form onSubmit={handleSubmitImageGenerationInput}>
-                <label htmlFor="imageGenerationInput" className="form-label">Image generation input</label>
-                <textarea id="imageGenerationInput" className="form-control" type="text" value={imageGenerationInput} onChange={(event) => setImageGenerationInput(event.target.value)} />
+                <div className="mb-3">
+                  <label htmlFor="imageGenerationInput" className="form-label">Image generation input</label>
+                  <textarea id="imageGenerationInput" className="form-control" type="text" rows="4" value={imageGenerationInput} onChange={(event) => setImageGenerationInput(event.target.value)} />
+                </div>
                 <Button variant="primary" disabled={isImageDescriptionLoading} type="submit">
                 {!isImageGenerationLoading ? 'Generate image':
                   <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />}
@@ -188,8 +204,10 @@ function InstagramPost() {
             <Accordion.Header>Caption</Accordion.Header>
             <Accordion.Body>
               <form onSubmit={handleSubmitCaption}>
-                <label htmlFor="userPrompt3" className="form-label">Caption input</label>
-                <textarea id="userPrompt3" className="form-control" type="text" value={userPrompt3} onChange={(event) => setUserPrompt3(event.target.value)} />
+                <div className="mb-3">
+                  <label htmlFor="userPrompt3" className="form-label">Caption input</label>
+                  <textarea id="userPrompt3" className="form-control" type="text" rows="4" value={userPrompt3} onChange={(event) => setUserPrompt3(event.target.value)} />
+                </div>
                 <Button variant="primary" disabled={isCaptionLoading} type="submit">
                 {!isCaptionLoading ? 'Generate caption':
                   <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />}
@@ -201,16 +219,20 @@ function InstagramPost() {
             <Card.Header>Preview</Card.Header>
             <Card.Img variant="top" src={imageUrl}></Card.Img>
             <Card.Body>
-              <label htmlFor="imageUrl" className="form-label">Image URL</label>
-              <input type="text" className="form-control" value={imageUrl} onChange={(event) => setImageUrl(event.target.value)} />
+              <div className="mb-3">
+                <label htmlFor="imageUrl" className="form-label">Image URL</label>
+                <input type="text" className="form-control" value={imageUrl} onChange={(event) => setImageUrl(event.target.value)} />
+              </div>
               <Card.Text>
-              <textarea id="caption" className="form-control" type="text" value={caption} onChange={(event) => setCaption(event.target.value)} />
-              <form onSubmit={handleSubmitPost}>
-                <Button variant="success" disabled={isPostLoading} type="submit">
-                {!isPostLoading ? 'Post':
-                  <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />}
-                </Button>
-              </form>
+                <div className="mb-3">
+                  <textarea id="caption" className="form-control" type="text" rows="10" value={caption} onChange={(event) => setCaption(event.target.value)} />
+                </div>
+                <form onSubmit={handleSubmitPost}>
+                  <Button variant="success" disabled={isPostLoading} type="submit">
+                  {!isPostLoading ? 'Post':
+                    <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />}
+                  </Button>
+                </form>
               </Card.Text>
             </Card.Body>
           </Card>
