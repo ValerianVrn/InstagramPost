@@ -152,7 +152,7 @@ function InstagramPost() {
         </Container>
       </Navbar>
       <main className="mb-3">
-        <Accordion defaultActiveKey="1" className="container-lg">
+        <Accordion defaultActiveKey={['1', '2', '3']} alwaysOpen className="container-lg">
           <Accordion.Item eventKey="0">
             <Accordion.Header>Tuning</Accordion.Header>
             <Accordion.Body>
