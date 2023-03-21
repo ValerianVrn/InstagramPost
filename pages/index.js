@@ -143,7 +143,7 @@ function InstagramPost() {
         <title>Instagram post with ChatGPT</title>
         <link rel="icon" href="/image.png" />
       </Head>
-      <Navbar bg="dark" variant="dark">
+      <Navbar bg="dark" variant="dark" className="mb-3">
         <Container>
           <Navbar.Brand href="/">
             <img alt="" src="/image.png" width="30" height="30" className="d-inline-block align-top" />{' '}
@@ -151,7 +151,7 @@ function InstagramPost() {
           </Navbar.Brand>
         </Container>
       </Navbar>
-      <main>
+      <main className="mb-3">
         <Accordion defaultActiveKey="1" className="container-lg">
           <Accordion.Item eventKey="0">
             <Accordion.Header>Tuning</Accordion.Header>
