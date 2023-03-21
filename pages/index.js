@@ -6,6 +6,18 @@ import { useAuth } from './components/AuthContext';
 import { useRouter } from 'next/router';
 import { Accordion, Button, Card, Container, Navbar, Spinner } from 'react-bootstrap';
 
+const GOURMETPASTRYTRANSFORMER_SYSTEMPROMPT = "You are a charming Instagramer who posts pastries in nice backgrounds with a touch of humor.";
+const GOURMETPASTRYTRANSFORMER_USERPROMPT1 = "Create an Instagram post of an apple pie with a ice cream on sunset. This is the first post of the account.";
+const GOURMETPASTRYTRANSFORMER_ASSISTANTPROMPT = "Welcome to my dessert adventure! 🍨🍎 As my first post, I'm sharing my all-time favorite dessert - warm apple pie with a scoop of vanilla ice cream, enjoyed during a beautiful sunset. There's something magical about the combination of sweet and tart flavors with a creamy finish. Who's ready for a slice? 🤤 #applepie #vanillaicecream #sunsetdessert #sweettoothsatisfied #dessertadventure #firstpost";
+const GOURMETPASTRYTRANSFORMER_USERPROMPT2 = "Give an accurate and factual description of a photo with a pastry in the foreground and a nice view from Savoie in winter in the background. Keep it simple and focus on the elements of the scene.";
+const GOURMETPASTRYTRANSFORMER_USERPROMPT3 = "This is the last day in Savoie. Generate a hilarious caption with famous hashtags.";
+
+const GENIUSPETTALES_SYSTEMPROMPT = "You are a charming Instagramer who posts pastries in nice backgrounds with a touch of humor.";
+const GENIUSPETTALES_USERPROMPT1 = "Create an Instagram post of an apple pie with a ice cream on sunset. This is the first post of the account.";
+const GENIUSPETTALES_ASSISTANTPROMPT = "Welcome to my dessert adventure! 🍨🍎 As my first post, I'm sharing my all-time favorite dessert - warm apple pie with a scoop of vanilla ice cream, enjoyed during a beautiful sunset. There's something magical about the combination of sweet and tart flavors with a creamy finish. Who's ready for a slice? 🤤 #applepie #vanillaicecream #sunsetdessert #sweettoothsatisfied #dessertadventure #firstpost";
+const GENIUSPETTALES_USERPROMPT2 = "Give an accurate and factual description of a photo with a pastry in the foreground and a nice view from Savoie in winter in the background. Keep it simple and focus on the elements of the scene.";
+const GENIUSPETTALES_USERPROMPT3 = "Give an accurate and factual description of a photo with a pastry in the foreground and a nice view from Savoie in winter in the background. Keep it simple and focus on the elements of the scene.";
+
 function InstagramPost() {
   const { isAuthenticated } = useAuth();
   const router = useRouter();
@@ -17,17 +29,17 @@ function InstagramPost() {
   }, [isAuthenticated]);
 
   // Image description generation
-  const [systemPrompt, setSystemPrompt] = useState("You are a charming Instagramer who posts pastries in nice backgrounds with a touch of humor.");
-  const [userPrompt1, setUserPrompt1] = useState("Create an Instagram post of an apple pie with a ice cream on sunset. This is the first post of the account.");
-  const [assistantPrompt, setAssistantPrompt] = useState("Welcome to my dessert adventure! 🍨🍎 As my first post, I'm sharing my all-time favorite dessert - warm apple pie with a scoop of vanilla ice cream, enjoyed during a beautiful sunset. There's something magical about the combination of sweet and tart flavors with a creamy finish. Who's ready for a slice? 🤤 #applepie #vanillaicecream #sunsetdessert #sweettoothsatisfied #dessertadventure #firstpost");
-  const [userPrompt2, setUserPrompt2] = useState("Give an accurate and factual description of a photo with a pastry in the foreground and a nice view from Savoie in winter in the background. Keep it simple and focus on the elements of the scene.");
+  const [systemPrompt, setSystemPrompt] = useState(GOURMETPASTRYTRANSFORMER_SYSTEMPROMPT);
+  const [userPrompt1, setUserPrompt1] = useState(GOURMETPASTRYTRANSFORMER_USERPROMPT1);
+  const [assistantPrompt, setAssistantPrompt] = useState(GOURMETPASTRYTRANSFORMER_ASSISTANTPROMPT);
+  const [userPrompt2, setUserPrompt2] = useState(GOURMETPASTRYTRANSFORMER_USERPROMPT2);
   const [isImageDescriptionLoading, setImageDescriptionIsLoading] = useState(false);
   // Image generation generation
   const [imageGenerationInput, setImageGenerationInput] = useState("");
   const [isImageGenerationLoading, setImageGenerationIsLoading] = useState(false);
   const [imageUrl, setImageUrl] = useState('');
   // Caption
-  const [userPrompt3, setUserPrompt3] = useState("This is the last day in Savoie. Generate a hilarious caption with famous hashtags.");
+  const [userPrompt3, setUserPrompt3] = useState(GOURMETPASTRYTRANSFORMER_USERPROMPT3);
   const [isCaptionLoading, setIsCaptionLoading] = useState(false);
   const [caption, setCaption] = useState('');
   // Instagram post
