@@ -4,14 +4,16 @@ import styles from "./index.module.css";
 import Facebook from './Facebook';
 import { useAuth } from './components/AuthContext';
 import { useRouter } from 'next/router';
-import { Accordion, Button, Card, Container, Navbar, Spinner } from 'react-bootstrap';
+import { Accordion, Button, Card, Container, Nav, Navbar, NavDropdown, Spinner } from 'react-bootstrap';
 
+const GOURMETPASTRYTRANSFORMER = "Gourmet Pastry Transformer";
 const GOURMETPASTRYTRANSFORMER_SYSTEMPROMPT = "You are a charming Instagramer who posts pastries in nice backgrounds with a touch of humor.";
 const GOURMETPASTRYTRANSFORMER_USERPROMPT1 = "Create an Instagram post of an apple pie with a ice cream on sunset. This is the first post of the account.";
 const GOURMETPASTRYTRANSFORMER_ASSISTANTPROMPT = "Welcome to my dessert adventure! 🍨🍎 As my first post, I'm sharing my all-time favorite dessert - warm apple pie with a scoop of vanilla ice cream, enjoyed during a beautiful sunset. There's something magical about the combination of sweet and tart flavors with a creamy finish. Who's ready for a slice? 🤤 #applepie #vanillaicecream #sunsetdessert #sweettoothsatisfied #dessertadventure #firstpost";
 const GOURMETPASTRYTRANSFORMER_USERPROMPT2 = "Give an accurate and factual description of a photo with a pastry in the foreground and a nice view from Savoie in winter in the background. Keep it simple and focus on the elements of the scene.";
 const GOURMETPASTRYTRANSFORMER_USERPROMPT3 = "This is the last day in Savoie. Generate a hilarious caption with famous hashtags.";
 
+const GENIUSPETTALES = "Genius Pet Tales";
 const GENIUSPETTALES_SYSTEMPROMPT = "You are an Instagramer who showcases cute animals in unique and creative settings and situations! To differentiate your profile, you add a narrative element to your images, creating a storyline or adventure for each animal. You always use famous hashtags.";
 const GENIUSPETTALES_USERPROMPT1 = "Create a post (image description and caption).";
 const GENIUSPETTALES_ASSISTANTPROMPT = "Image description: a fluffy white cat with big blue eyes stands at the edge of a cliff, gazing out at a breathtakingly beautiful world of floating islands, crystal-clear waterfalls, and colorful clouds. The cat looks ready to embark on an exciting adventure.\nCaption: Meet Luna, our brave explorer cat! She's always up for an adventure, and today she's discovered a magical world full of wonder and excitement. Luna can't wait to explore every corner of this fantastical land and see what mysteries await her. Do you have any suggestions for where Luna should go next? Let us know in the comments! #CuteAnimals #PetsofInstagram #CreativeInspiration #ExploreMore #ImaginaryWorlds";
@@ -27,6 +29,9 @@ function InstagramPost() {
       router.push('/login');
     }
   }, [isAuthenticated]);
+
+  // Account
+  const [currentAccount, setCurrentAccount] = useState(GOURMETPASTRYTRANSFORMER);
 
   // Image description generation
   const [systemPrompt, setSystemPrompt] = useState(GOURMETPASTRYTRANSFORMER_SYSTEMPROMPT);
@@ -45,6 +50,10 @@ function InstagramPost() {
   // Instagram post
   const { loginAndPublish } = Facebook();
   const [isPostLoading, setIsPostLoading] = useState(false);
+
+  async function handleChangeAccount(eventKey) {
+    setCurrentAccount(eventKey);
+  }
 
   async function handleSubmitImageDescriptionInput(event) {
     event.preventDefault();
@@ -155,12 +164,18 @@ function InstagramPost() {
         <title>Instagram post with ChatGPT</title>
         <link rel="icon" href="/image.png" />
       </Head>
-      <Navbar bg="dark" variant="dark" className="mb-3">
+      <Navbar bg="dark" variant="dark" className="mb-3" onSelect={handleChangeAccount}>
         <Container>
           <Navbar.Brand href="/">
             <img alt="" src="/image.png" width="30" height="30" className="d-inline-block align-top" />{' '}
             Instagram post with ChatGPT
           </Navbar.Brand>
+          <Nav className="me-auto">
+            <NavDropdown title={currentAccount} id="basic-nav-dropdown">
+              <NavDropdown.Item eventKey={GOURMETPASTRYTRANSFORMER}>{GOURMETPASTRYTRANSFORMER}</NavDropdown.Item>
+              <NavDropdown.Item eventKey={GENIUSPETTALES}>{GENIUSPETTALES}</NavDropdown.Item>
+            </NavDropdown>
+          </Nav>
         </Container>
       </Navbar>
       <main className="mb-3">
