@@ -6,7 +6,7 @@ export function Facebook() {
   const [facebookUserAccessToken, setFacebookUserAccessToken] = useState("");
   
   useEffect(() => {
-    // getLoginStatus();
+    getLoginStatus();
    }, []);
    
   /* --------------------------------------------------------

@@ -35,7 +35,7 @@ function InstagramPost() {
     if (!isAuthenticated) {
       router.push('/login');
     }
-    initFacebook();
+    // initFacebook();
   }, [isAuthenticated]);
 
   // Account
@@ -56,7 +56,7 @@ function InstagramPost() {
   const [isCaptionLoading, setIsCaptionLoading] = useState(false);
   const [caption, setCaption] = useState('');
   // Instagram post
-  const { loginAndPublish } = Facebook();
+  // const { loginAndPublish } = Facebook();
   const [isPostLoading, setIsPostLoading] = useState(false);
 
   function initFacebook() {
@@ -183,6 +183,9 @@ function InstagramPost() {
     event.preventDefault();
     setIsPostLoading(true);
     try {
+      initFacebook();
+      const { loginAndPublish } = Facebook();
+
       loginAndPublish(imageUrl, caption);
       alert("Posted!");
     } catch(error) {
