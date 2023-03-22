@@ -6,53 +6,87 @@ import { useAuth } from './components/AuthContext';
 import { useRouter } from 'next/router';
 import { Accordion, Button, Card, Container, Nav, Navbar, NavDropdown, Spinner } from 'react-bootstrap';
 
-const GOURMETPASTRYTRANSFORMER = "Gourmet Pastry Transformer";
-const GOURMETPASTRYTRANSFORMER_SYSTEMPROMPT = "You are a charming Instagramer who posts pastries in nice backgrounds with a touch of humor.";
-const GOURMETPASTRYTRANSFORMER_USERPROMPT1 = "Create an Instagram post of an apple pie with a ice cream on sunset. This is the first post of the account.";
-const GOURMETPASTRYTRANSFORMER_ASSISTANTPROMPT = "Welcome to my dessert adventure! 🍨🍎 As my first post, I'm sharing my all-time favorite dessert - warm apple pie with a scoop of vanilla ice cream, enjoyed during a beautiful sunset. There's something magical about the combination of sweet and tart flavors with a creamy finish. Who's ready for a slice? 🤤 #applepie #vanillaicecream #sunsetdessert #sweettoothsatisfied #dessertadventure #firstpost";
-const GOURMETPASTRYTRANSFORMER_USERPROMPT2 = "Give an accurate and factual description of a photo with a pastry in the foreground and a nice view from Savoie in winter in the background. Keep it simple and focus on the elements of the scene.";
-const GOURMETPASTRYTRANSFORMER_USERPROMPT3 = "This is the last day in Savoie. Generate a hilarious caption with famous hashtags.";
+const GOURMETPASTRYTRANSFORMER = {
+  name: "Gourmet Pastry Transformer",
+  facebookAppId: process.env.GOURMETPASTRYTRANSFORMER_FACEBOOK_APP_ID,
+  systemPrompt: "You are a charming Instagramer who posts pastries in nice backgrounds with a touch of humor.",
+  userPrompt1: "Create an Instagram post of an apple pie with a ice cream on sunset. This is the first post of the account.",
+  assistantPrompt: "Welcome to my dessert adventure! 🍨🍎 As my first post, I'm sharing my all-time favorite dessert - warm apple pie with a scoop of vanilla ice cream, enjoyed during a beautiful sunset. There's something magical about the combination of sweet and tart flavors with a creamy finish. Who's ready for a slice? 🤤 #applepie #vanillaicecream #sunsetdessert #sweettoothsatisfied #dessertadventure #firstpost",
+  userPrompt2: "Give an accurate and factual description of a photo with a pastry in the foreground and a nice view from Savoie in winter in the background. Keep it simple and focus on the elements of the scene.",
+  userPrompt3: "This is the last day in Savoie. Generate a hilarious caption with famous hashtags."
+};
 
-const GENIUSPETTALES = "Genius Pet Tales";
-const GENIUSPETTALES_SYSTEMPROMPT = "You are an Instagramer who showcases cute animals in unique and creative settings and situations! To differentiate your profile, you add a narrative element to your images, creating a storyline or adventure for each animal. You always use famous hashtags.";
-const GENIUSPETTALES_USERPROMPT1 = "Create a post (image description and caption).";
-const GENIUSPETTALES_ASSISTANTPROMPT = "Image description: a fluffy white cat with big blue eyes stands at the edge of a cliff, gazing out at a breathtakingly beautiful world of floating islands, crystal-clear waterfalls, and colorful clouds. The cat looks ready to embark on an exciting adventure.\nCaption: Meet Luna, our brave explorer cat! She's always up for an adventure, and today she's discovered a magical world full of wonder and excitement. Luna can't wait to explore every corner of this fantastical land and see what mysteries await her. Do you have any suggestions for where Luna should go next? Let us know in the comments! #CuteAnimals #PetsofInstagram #CreativeInspiration #ExploreMore #ImaginaryWorlds";
-const GENIUSPETTALES_USERPROMPT2 = "Find a topic for today and give the image description.";
-const GENIUSPETTALES_USERPROMPT3 = "Create the caption.";
+const GENIUSPETTALES = {
+  name: "Genius Pet Tales",
+  facebookAppId: process.env.GENIUSPETTALES_FACEBOOK_APP_ID,
+  systemPrompt: "You are an Instagramer who showcases cute animals in unique and creative settings and situations! To differentiate your profile, you add a narrative element to your images, creating a storyline or adventure for each animal. You always use famous hashtags.",
+  userPrompt1: "Create a post (image description and caption).",
+  assistantPrompt: "Image description: a fluffy white cat with big blue eyes stands at the edge of a cliff, gazing out at a breathtakingly beautiful world of floating islands, crystal-clear waterfalls, and colorful clouds. The cat looks ready to embark on an exciting adventure.\nCaption: Meet Luna, our brave explorer cat! She's always up for an adventure, and today she's discovered a magical world full of wonder and excitement. Luna can't wait to explore every corner of this fantastical land and see what mysteries await her. Do you have any suggestions for where Luna should go next? Let us know in the comments! #CuteAnimals #PetsofInstagram #CreativeInspiration #ExploreMore #ImaginaryWorlds",
+  userPrompt2: "Find a topic for today and give the image description.",
+  userPrompt3: "Create the caption."
+};
 
 function InstagramPost() {
   const { isAuthenticated } = useAuth();
   const router = useRouter();
+  const [sdkInitialized, setSdkInitialized] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated) {
       router.push('/login');
     }
+    initFacebook();
   }, [isAuthenticated]);
 
   // Account
   const [currentAccount, setCurrentAccount] = useState(GOURMETPASTRYTRANSFORMER);
 
   // Image description generation
-  const [systemPrompt, setSystemPrompt] = useState(GOURMETPASTRYTRANSFORMER_SYSTEMPROMPT);
-  const [userPrompt1, setUserPrompt1] = useState(GOURMETPASTRYTRANSFORMER_USERPROMPT1);
-  const [assistantPrompt, setAssistantPrompt] = useState(GOURMETPASTRYTRANSFORMER_ASSISTANTPROMPT);
-  const [userPrompt2, setUserPrompt2] = useState(GOURMETPASTRYTRANSFORMER_USERPROMPT2);
+  const [systemPrompt, setSystemPrompt] = useState(GOURMETPASTRYTRANSFORMER.systemPrompt);
+  const [userPrompt1, setUserPrompt1] = useState(GOURMETPASTRYTRANSFORMER.userPrompt1);
+  const [assistantPrompt, setAssistantPrompt] = useState(GOURMETPASTRYTRANSFORMER.assistantPrompt);
+  const [userPrompt2, setUserPrompt2] = useState(GOURMETPASTRYTRANSFORMER.userPrompt2);
   const [isImageDescriptionLoading, setImageDescriptionIsLoading] = useState(false);
   // Image generation generation
   const [imageGenerationInput, setImageGenerationInput] = useState("");
   const [isImageGenerationLoading, setImageGenerationIsLoading] = useState(false);
   const [imageUrl, setImageUrl] = useState('');
   // Caption
-  const [userPrompt3, setUserPrompt3] = useState(GOURMETPASTRYTRANSFORMER_USERPROMPT3);
+  const [userPrompt3, setUserPrompt3] = useState(GOURMETPASTRYTRANSFORMER.userPrompt3);
   const [isCaptionLoading, setIsCaptionLoading] = useState(false);
   const [caption, setCaption] = useState('');
   // Instagram post
   const { loginAndPublish } = Facebook();
   const [isPostLoading, setIsPostLoading] = useState(false);
 
+  function initFacebook() {
+    
+    // Initialize Facebook SDK.
+    window.fbAsyncInit = () => {
+      FB.init({
+        appId: currentAccount.facebookAppId,
+        cookie: true,
+        xfbml: true,
+        version: 'v16.0'
+      })};
+
+      // Set the initialization status to true.
+      setSdkInitialized(true);
+  }
+
   async function handleChangeAccount(eventKey) {
-    setCurrentAccount(eventKey);
+    if (eventKey === GOURMETPASTRYTRANSFORMER.name) {
+      setCurrentAccount(GOURMETPASTRYTRANSFORMER);
+    }
+    else if (eventKey === GENIUSPETTALES.name) {
+      setCurrentAccount(GENIUSPETTALES);
+    }
+    initFacebook();
+    setSystemPrompt(currentAccount.systemPrompt);
+    setUserPrompt1(currentAccount.userPrompt1);
+    setAssistantPrompt(currentAccount.assistantPrompt);
+    setUserPrompt2(currentAccount.userPrompt2);
+    setUserPrompt3(currentAccount.userPrompt3);
   }
 
   async function handleSubmitImageDescriptionInput(event) {
@@ -171,9 +205,9 @@ function InstagramPost() {
             Instagram post with ChatGPT
           </Navbar.Brand>
           <Nav className="me-auto">
-            <NavDropdown title={currentAccount} id="basic-nav-dropdown">
-              <NavDropdown.Item eventKey={GOURMETPASTRYTRANSFORMER}>{GOURMETPASTRYTRANSFORMER}</NavDropdown.Item>
-              <NavDropdown.Item eventKey={GENIUSPETTALES}>{GENIUSPETTALES}</NavDropdown.Item>
+            <NavDropdown title={currentAccount.name} id="basic-nav-dropdown">
+              <NavDropdown.Item eventKey={GOURMETPASTRYTRANSFORMER.name}>{GOURMETPASTRYTRANSFORMER.name}</NavDropdown.Item>
+              <NavDropdown.Item eventKey={GENIUSPETTALES.name}>{GENIUSPETTALES.name}</NavDropdown.Item>
             </NavDropdown>
           </Nav>
         </Container>
@@ -242,6 +276,12 @@ function InstagramPost() {
               </form>
             </Accordion.Body>
           </Accordion.Item>
+        { !sdkInitialized ? (
+          <div className="d-flex m-3 justify-content-center">
+            <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
+            <label> Loading Facebook app...</label>
+          </div>
+          ) : (
           <Card>
             <Card.Header>Preview</Card.Header>
             <Card.Img variant="top" src={imageUrl}></Card.Img>
@@ -263,6 +303,7 @@ function InstagramPost() {
               </Card.Text>
             </Card.Body>
           </Card>
+          )}
         </Accordion>
       </main>
     </div>
