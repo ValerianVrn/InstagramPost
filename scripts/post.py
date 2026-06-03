@@ -1,7 +1,7 @@
 """
 scripts/post.py
-🧳 Pastry Traveller
-  - OpenAI API (gpt-4o-mini)  → text / JSON generation
+🧳 Gourmet Pastry Transformer
+  - Gemini API (gemini-3.5-flash)  → text / JSON generation
   - Pollinations (free)        → image generation
   - Instagram Graph API        → publishing
 
