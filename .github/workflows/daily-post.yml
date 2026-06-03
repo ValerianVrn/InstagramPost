@@ -30,9 +30,10 @@ jobs:
 
       - name: Run traveller
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           IG_ACCESS_TOKEN:   ${{ secrets.IG_ACCESS_TOKEN }}
           IG_ACCOUNT_ID:     ${{ secrets.IG_ACCOUNT_ID }}
+          IG_ACCOUNT_SECRET:     ${{ secrets.IG_ACCOUNT_SECRET }}
         run: |
           DATE="${{ github.event.inputs.date_override }}"
           if [ -n "$DATE" ]; then
