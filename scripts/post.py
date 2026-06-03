@@ -236,7 +236,7 @@ if __name__ == "__main__":
     season = get_season(d)
     mode   = "DRY-RUN" if DRY_RUN else "LIVE"
 
-    print(f"\n🧳 Pastry Traveller [{mode}]")
+    print(f"\n🧳 Gourmet Pastry Transformer [{mode}]")
     print(f"📅 {d}  |  season: {season}\n")
 
     print("🔑 Refreshing token...")
@@ -246,11 +246,14 @@ if __name__ == "__main__":
 
     print(f"\n🥐 Generating post for {state['flag']} {state['country']}...")
     plan = generate_post(state, d, season, is_arrival)
-    print(f"   Pastry : {plan['pastry_name']}")
-    print(f"   Facts  : {plan['characteristics']}")
+    print(f"   Pastry       : {plan['pastry_name']}")
+    print(f"   Facts        : {plan['characteristics']}")
+    print(f"   Image Prompt : {plan['image_prompt']}")
+    print(f"   Caption      : {plan['caption']}")
 
     url     = image_url(plan, state, d)
-    post_id = publish(url, plan["caption"])
+    print(f"   Image URL  : {url}")
+    post_id = publish(url, plan['caption'])
 
     if not DRY_RUN:
         print(f"\n✅ Posted! ID: {post_id}")
