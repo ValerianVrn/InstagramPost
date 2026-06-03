@@ -118,7 +118,7 @@ def get_location(d):
             "Pick the next country (geographically close, not recently visited).\n"
             "Respond ONLY in raw JSON, no markdown:\n"
             '{"country": "name", "flag": "emoji", "neighbours": ["list", "of", "neighbours"], '
-            f'"travel_note": "fun one-liner about crossing from {state['country']} to this country"',
+            f'"travel_note": "fun one-liner about crossing from {state["country"]} to this country"}}',
             FAKE_MOVE
         )
         return {
