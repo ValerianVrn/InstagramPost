@@ -27,7 +27,7 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: pip install -q -U google-genai huggingface_hub[inference]
+        run: pip install -q -U google-genai huggingface_hub[inference] Pillow
 
       - name: Generate and publish Instagram post
         env:
