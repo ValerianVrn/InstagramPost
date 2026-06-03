@@ -24,12 +24,15 @@ RESET    = "--reset"   in args
 date_arg = next((a for a in args if not a.startswith("--")), None)
 
 # ── Config ────────────────────────────────────────────────────────────────────
-IG_API     = "https://graph.facebook.com/v19.0"
-TOKEN      = os.environ.get("IG_ACCESS_TOKEN", "fake-token")
-IG_ID      = os.environ.get("IG_ACCOUNT_ID",   "fake-id")
-IG_SECRET  = os.environ.get("IG_ACCOUNT_SECRET",   "fake-secret")
-GEMINI_KEY = os.environ.get("GEMINI_API_KEY",  "fake-key")
-STATE_FILE = "traveller_state.json"
+IG_API      = "https://graph.facebook.com/v19.0"
+TOKEN       = os.environ.get("IG_ACCESS_TOKEN", "fake-token")
+IG_ID       = os.environ.get("IG_ACCOUNT_ID",   "fake-id")
+IG_SECRET   = os.environ.get("IG_ACCOUNT_SECRET",   "fake-secret")
+GEMINI_KEY  = os.environ.get("GEMINI_API_KEY",  "fake-key")
+HF_TOKEN    = os.environ.get("HF_API_TOKEN", "fake-hf-token")
+HF_MODEL    = "black-forest-labs/FLUX.1-schnell"  # free, fast, high quality
+HF_API      = f"https://api-inference.huggingface.co/models/{HF_MODEL}"
+STATE_FILE  = "traveller_state.json"
 
 if not DRY_RUN:
     genai.Client(api_key=GEMINI_KEY)
@@ -166,11 +169,50 @@ def generate_post(state, d, season, is_arrival):
         FAKE_POST
     )
 
-# ── Image URL ─────────────────────────────────────────────────────────────────
-def image_url(plan, state, d):
-    seed   = abs(hash(f"{d}-{state['country']}-{plan['pastry_name']}")) % 99999
-    prompt = requests.utils.quote(plan["image_prompt"])
-    return f"https://image.pollinations.ai/prompt/{prompt}?width=1080&height=1080&nologo=true&seed={seed}&model=flux"
+# ── Image generation: Hugging Face → file.io ──────────────────────────────────
+def generate_image(plan, state, d):
+    import time, io
+    from huggingface_hub import InferenceClient
+
+    if DRY_RUN:
+        print("  [DRY-RUN] Skipping image generation")
+        return "https://placehold.co/1080x1080/png"
+
+    seed = abs(hash(f"{d}-{state['country']}-{plan['pastry_name']}")) % 99999
+
+    # ── Step A: Generate via Hugging Face (free) ──────────────────────────────
+    print(f"  🎨 Generating image with FLUX (seed {seed})...")
+    hf_client = InferenceClient(provider="hf-inference", api_key=HF_TOKEN)
+    image = hf_client.text_to_image(
+        plan["image_prompt"],
+        model="black-forest-labs/FLUX.1-schnell",
+    )
+    # Convert PIL image → JPEG bytes
+    buffer = io.BytesIO()
+    image.save(buffer, format="JPEG", quality=90)
+    image_bytes = buffer.getvalue()
+    print(f"  ✓ Image generated ({len(image_bytes)//1024}KB)")
+
+    # ── Step B: Upload to tmpfiles.org → permanent public URL ────────────────
+    # file.io has become unreliable; tmpfiles.org is simpler and more stable.
+    print("  ☁️  Uploading image to tmpfiles.org...")
+    upload = requests.post(
+        "https://tmpfiles.org/api/v1/upload",
+        files={"file": ("pastry.jpg", image_bytes, "image/jpeg")},
+        timeout=30
+    )
+    print(f"  Upload status: {upload.status_code}")
+    print(f"  Upload response: {upload.text[:300]}")
+    upload.raise_for_status()
+    result = upload.json()
+    # tmpfiles.org returns {"status": "success", "data": {"url": "https://tmpfiles.org/..."}}
+    # The direct file URL replaces /dl/ with nothing — we need the raw file link
+    raw_url = result["data"]["url"]
+    # Convert https://tmpfiles.org/1234/pastry.jpg
+    #      to https://tmpfiles.org/dl/1234/pastry.jpg  (direct download link)
+    public_url = raw_url.replace("tmpfiles.org/", "tmpfiles.org/dl/")
+    print(f"  ✓ Public URL: {public_url}")
+    return public_url
 
 # ── Token refresh ─────────────────────────────────────────────────────────────
 def refresh_token(token):
@@ -251,7 +293,7 @@ if __name__ == "__main__":
     print(f"   Image Prompt : {plan['image_prompt']}")
     print(f"   Caption      : {plan['caption']}")
 
-    url     = image_url(plan, state, d)
+    url     = generate_image(plan, state, d)
     print(f"   Image URL  : {url}")
     post_id = publish(url, plan['caption'])
 
