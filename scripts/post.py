@@ -2,6 +2,7 @@
 scripts/post.py
 🧳 Gourmet Pastry Transformer
   - HF Llama 3.3 70B (free)   → text / JSON generation
+  - Gemini API (gemini-3.5-flash)  → (fallback if HF usage limit reached) text / JSON generation
   - HF FLUX.1-schnell (free)  → image generation
   - tmpfiles.org (free)       → temporary public image hosting
   - Instagram Graph API       → publishing
@@ -75,18 +76,36 @@ def ai_json(prompt, fake):
     if DRY_RUN:
         print("  [DRY-RUN] Using fake response")
         return fake
-
-    response = hf.chat.completions.create(
-        model="meta-llama/Llama-3.3-70B-Instruct:together",
-        messages=[{"role": "user", "content": prompt}],
-        max_tokens=700,
-    )
-    raw = response.choices[0].message.content
-    print(f"  AI response (raw): {raw[:700]}")
-
+ 
     from json_repair import repair_json
+ 
+    # ── Try HF first ──────────────────────────────────────────────────────────
+    try:
+        response = hf.chat.completions.create(
+            model="meta-llama/Llama-3.3-70B-Instruct:together",
+            messages=[{"role": "user", "content": prompt}],
+            max_tokens=700,
+        )
+        raw = response.choices[0].message.content
+        print(f"  AI response (raw): {raw[:300]}")
+        return json.loads(repair_json(raw))
+ 
+    except Exception as e:
+        if "429" not in str(e) and "rate" not in str(e).lower():
+            raise  # not a rate limit error — re-raise immediately
+        print(f"  ⚠️  HF rate limited ({e}) — falling back to Gemini...")
+ 
+    # ── Gemini fallback ───────────────────────────────────────────────────────
+    import google.generativeai as genai
+    GEMINI_KEY = os.environ.get("GEMINI_API_KEY", "")
+    if not GEMINI_KEY or GEMINI_KEY == "fake-key":
+        raise RuntimeError("HF rate limited and no GEMINI_API_KEY set as fallback.")
+    genai.configure(api_key=GEMINI_KEY)
+    gemini = genai.GenerativeModel("gemini-1.5-flash")
+    response = gemini.generate_content(prompt)
+    raw = response.text
+    print(f"  Gemini response (raw): {raw[:300]}")
     return json.loads(repair_json(raw))
-
 
 # ── Location logic ────────────────────────────────────────────────────────────
 def get_location(d):

@@ -27,7 +27,7 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: pip install huggingface_hub[inference] Pillow requests json_repair
+        run: pip install huggingface_hub[inference] google-genai Pillow requests json_repair
 
       - name: Generate and publish Instagram post
         env:
@@ -35,6 +35,7 @@ jobs:
           IG_ACCESS_TOKEN:   ${{ secrets.IG_ACCESS_TOKEN }}
           IG_ACCOUNT_ID:     ${{ secrets.IG_ACCOUNT_ID }}
           IG_ACCOUNT_SECRET:     ${{ secrets.IG_ACCOUNT_SECRET }}
+          GEMINI_API_KEY:     ${{ secrets.GEMINI_API_KEY }}
         run: |
           DATE="${{ github.event.inputs.date_override }}"
           if [ -n "$DATE" ]; then
