@@ -1,53 +1,46 @@
-# Startup
+# Introduction
 
-It requires a HTTPS connexion. Use ngrok with the command:
-ngrok http 3000 --region us
-The US region is required otherwise Facebook would detect the URL as malicious or abusive.
+This is an app for posting AI-generated content on the Instagram account "GourmetPastryTransformer".
+Many AI are used to generate caption and images.
+A post is published automatically every day.
 
-Go to the Facebook login for Business app from the Meta for developers page of GourmetPastryTransformer: https://developers.facebook.com/apps/596915082341166/business-login/settings/.
-Copy the URL created with ngrok in "URI de redirection OAuth valides". Under "Paramètres OAuth client".
+# How it works
 
-# OpenAI API Quickstart - Node.js example app
+## Daily post
 
-This is an example pet name generator app used in the OpenAI API [quickstart tutorial](https://platform.openai.com/docs/quickstart). It uses the [Next.js](https://nextjs.org/) framework with [React](https://reactjs.org/). Check out the tutorial or follow the instructions below to get set up.
+API Graph for Instagram (Meta) (https://developers.facebook.com)
+- Facebook Login for Business
+Claude API for generating content
 
-![Text box that says name my pet with an icon of a dog](https://user-images.githubusercontent.com/10623307/213887080-b2bc4645-7fdb-4dbd-ae42-efce00d0dc29.png)
+### Connect to Instagram
 
+Get access token 
+You don't need a login flow at all for a bot. Use the Graph API Explorer to get the token manually just once:
 
-## Setup
+1. Go to developers.facebook.com/tools/explorer
+2. Select your app
+3. Add permissions: instagram_basic, instagram_content_publish, pages_show_list
+4. Click Generate Access Token → log in → copy the token
+5. Exchange it for a long-lived token (valid 60 days):
 
-1. If you don’t have Node.js installed, [install it from here](https://nodejs.org/en/) (Node.js version >= 14.6.0 required)
+```
+bashcurl "https://graph.facebook.com/v19.0/oauth/access_token
+  ?grant_type=fb_exchange_token
+  &client_id=YOUR_APP_ID
+  &client_secret=YOUR_APP_SECRET
+  &fb_exchange_token=SHORT_LIVED_TOKEN"
+```
+6. Paste the result into GitHub Secrets as IG_ACCESS_TOKEN
 
-2. Clone this repository
-
-3. Navigate into the project directory
-
-   ```bash
-   $ cd openai-quickstart-node
-   ```
-
-4. Install the requirements
-
-   ```bash
-   $ npm install
-   ```
-
-5. Make a copy of the example environment variables file
-
-   On Linux systems: 
-   ```bash
-   $ cp .env.example .env
-   ```
-   On Windows:
-   ```powershell
-   $ copy .env.example .env
-   ```
-6. Add your [API key](https://platform.openai.com/account/api-keys) to the newly created `.env` file
-
-7. Run the app
-
-   ```bash
-   $ npm run dev
-   ```
-
-You should now be able to access the app at [http://localhost:3000](http://localhost:3000)! For the full context behind this example app, check out the [tutorial](https://platform.openai.com/docs/quickstart).
+Since it expires every 60 days, add this to your post.py — it refreshes automatically on every daily run:
+```
+def refresh_token():
+    r = requests.get("https://graph.facebook.com/v19.0/oauth/access_token", params={
+        "grant_type":   "ig_refresh_token",
+        "access_token": TOKEN,
+    })
+    if r.ok:
+        return r.json().get("access_token")
+    return TOKEN
+```
+Then call it at the top of main and update the state file with the refreshed token — though updating GitHub Secrets programmatically requires an extra setup. Easiest is just to set a reminder every 50 days to refresh it manually via the same curl command.
