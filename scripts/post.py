@@ -133,14 +133,16 @@ def get_location(d):
     if days_here >= state["stay_days"]:
         print(f"  ✈️  {days_here} days in {state['country']} — moving on!")
         visited = state.get("visited", [])
+        current_country    = state["country"]
+        current_neighbours = state["neighbours"]
         data = ai_json(
-            f"A pastry traveller just finished visiting {state['country']}.\n"
-            f"Known neighbours: {state['neighbours']}.\n"
+            f"A pastry traveller just finished visiting {current_country}.\n"
+            f"Known neighbours: {current_neighbours}.\n"
             f"Recently visited (avoid): {visited[-6:]}.\n"
             "Pick the next country (geographically close, not recently visited).\n"
             "Respond ONLY in raw JSON, no markdown:\n"
             '{"country": "name", "flag": "emoji", "neighbours": ["list", "of", "neighbours"], '
-            f'"travel_note": "fun one-liner about crossing from {state["country"]} to this country"}}',
+            f'"travel_note": "fun one-liner about crossing from {current_country} to this country"}}',
             FAKE_MOVE
         )
         return {
