@@ -34,7 +34,7 @@ HF_MODEL    = "black-forest-labs/FLUX.1-schnell"  # free, fast, high quality
 HF_API      = f"https://api-inference.huggingface.co/models/{HF_MODEL}"
 STATE_FILE  = "traveller_state.json"
 
-hf = None if DRY_RUN else InferenceClient(provider="hf-inference", api_key=HF_TOKEN)
+hf = None if DRY_RUN else InferenceClient(api_key=HF_TOKEN)
 
 # ── Season ────────────────────────────────────────────────────────────────────
 def get_season(d):
@@ -77,13 +77,16 @@ def ai_json(prompt, fake):
         return fake
 
     response = hf.chat.completions.create(
-        model="meta-llama/Llama-3.3-70B-Instruct",
+        model="meta-llama/Llama-3.3-70B-Instruct:together",
         messages=[{"role": "user", "content": prompt}],
         max_tokens=700,
     )
     raw = response.choices[0].message.content
+    print(f"  AI response (raw): {raw[:700]}")
 
-    return json.loads(raw.replace("```json", "").replace("```", "").strip())
+    from json_repair import repair_json
+    return json.loads(repair_json(raw))
+
 
 # ── Location logic ────────────────────────────────────────────────────────────
 def get_location(d):
