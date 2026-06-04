@@ -27,7 +27,7 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: pip install huggingface_hub[inference] Pillow
+        run: pip install huggingface_hub[inference] Pillow requests
 
       - name: Generate and publish Instagram post
         env:
