@@ -1,0 +1,53 @@
+name: 🧳 Gourmet Pastry Transformer
+
+on:
+  schedule:
+    - cron: "0 9 * * *"   # Every day at 09:00 UTC
+  workflow_dispatch:
+    inputs:
+      date_override:
+        description: "Date override (YYYY-MM-DD) for testing"
+        required: false
+        default: ""
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    environment: Production
+    permissions:
+      contents: write       # needed to commit traveller_state.json
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install huggingface_hub[inference] google-genai Pillow requests json_repair
+
+      - name: Generate and publish Instagram post
+        env:
+          HF_API_TOKEN: ${{ secrets.HF_API_TOKEN }}
+          IG_ACCESS_TOKEN:   ${{ secrets.IG_ACCESS_TOKEN }}
+          IG_ACCOUNT_ID:     ${{ secrets.IG_ACCOUNT_ID }}
+          IG_ACCOUNT_SECRET:     ${{ secrets.IG_ACCOUNT_SECRET }}
+          GEMINI_API_KEY:     ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          DATE="${{ github.event.inputs.date_override }}"
+          if [ -n "$DATE" ]; then
+            python scripts/post.py "$DATE"
+          else
+            python scripts/post.py
+          fi
+
+      - name: Commit traveller state
+        run: |
+          git config user.email "ValerianVrn@users.noreply.github.com"
+          git config user.name "Gourmet Pastry Transformer Bot"
+          git add traveller_state.json
+          git commit -m "🧳 traveller state $(date +%F)" || echo "No changes"
+          git push
