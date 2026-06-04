@@ -1,9 +1,10 @@
 """
 scripts/post.py
 🧳 Gourmet Pastry Transformer
-  - Gemini API (gemini-3.5-flash)  → text / JSON generation
-  - Pollinations (free)        → image generation
-  - Instagram Graph API        → publishing
+  - HF Llama 3.3 70B (free)   → text / JSON generation
+  - HF FLUX.1-schnell (free)  → image generation
+  - tmpfiles.org (free)       → temporary public image hosting
+  - Instagram Graph API       → publishing
 
 Usage:
   python scripts/post.py                        # normal daily run
@@ -15,7 +16,7 @@ Usage:
 
 import os, sys, json, random, requests
 from datetime import date
-from google import genai
+from huggingface_hub import InferenceClient
 
 # ── Args ──────────────────────────────────────────────────────────────────────
 args     = sys.argv[1:]
@@ -28,17 +29,12 @@ IG_API      = "https://graph.facebook.com/v19.0"
 TOKEN       = os.environ.get("IG_ACCESS_TOKEN", "fake-token")
 IG_ID       = os.environ.get("IG_ACCOUNT_ID",   "fake-id")
 IG_SECRET   = os.environ.get("IG_ACCOUNT_SECRET",   "fake-secret")
-GEMINI_KEY  = os.environ.get("GEMINI_API_KEY",  "fake-key")
 HF_TOKEN    = os.environ.get("HF_API_TOKEN", "fake-hf-token")
 HF_MODEL    = "black-forest-labs/FLUX.1-schnell"  # free, fast, high quality
 HF_API      = f"https://api-inference.huggingface.co/models/{HF_MODEL}"
 STATE_FILE  = "traveller_state.json"
 
-if not DRY_RUN:
-    genai.Client(api_key=GEMINI_KEY)
-    client = genai.Client()
-else:
-    client = None
+hf = None if DRY_RUN else InferenceClient(provider="hf-inference", api_key=HF_TOKEN)
 
 # ── Season ────────────────────────────────────────────────────────────────────
 def get_season(d):
@@ -74,17 +70,18 @@ FAKE_POST = {
     "caption": "Day 1 in Portugal and I've already eaten four of these. No regrets. 🇵🇹\nThe Pastel de Nata is basically a custard tart that went to finishing school — flaky, creamy, dusted with cinnamon.\nHave you ever had one fresh from the oven?\n\n#pasteldanata #portugal #pastrytraveller #foodtravel"
 }
 
-# ── OpenAI call ───────────────────────────────────────────────────────────────
+# ── AI call ───────────────────────────────────────────────────────────────
 def ai_json(prompt, fake):
     if DRY_RUN:
         print("  [DRY-RUN] Using fake response")
         return fake
 
-    response = client.models.generate_content(
-        model="gemini-3.5-flash",
-        contents=prompt
+    response = hf.chat.completions.create(
+        model="meta-llama/Llama-3.3-70B-Instruct",
+        messages=[{"role": "user", "content": prompt}],
+        max_tokens=700,
     )
-    raw = response.text
+    raw = response.choices[0].message.content
 
     return json.loads(raw.replace("```json", "").replace("```", "").strip())
 
