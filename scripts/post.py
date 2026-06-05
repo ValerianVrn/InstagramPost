@@ -37,10 +37,6 @@ STATE_FILE  = "traveller_state.json"
 
 hf = None if DRY_RUN else InferenceClient(api_key=HF_TOKEN)
 
-# ── Season ────────────────────────────────────────────────────────────────────
-def get_season(d):
-    return "warm" if 4 <= d.month <= 9 else "cold"
-
 # ── State ─────────────────────────────────────────────────────────────────────
 def load_state():
     if os.path.exists(STATE_FILE):
@@ -82,29 +78,33 @@ def ai_json(prompt, fake):
     # ── Try HF first ──────────────────────────────────────────────────────────
     try:
         response = hf.chat.completions.create(
-            model="meta-llama/Llama-3.3-70B-Instruct:together",
+            model="Qwen/Qwen3-0.6B:featherless-ai",
+            # model="meta-llama/Llama-3.3-70B-Instruct:together",
             messages=[{"role": "user", "content": prompt}],
             max_tokens=700,
         )
         raw = response.choices[0].message.content
-        print(f"  AI response (raw): {raw[:300]}")
+        print(f"  AI response (raw): {raw}")
         return json.loads(repair_json(raw))
  
     except Exception as e:
-        if "429" not in str(e) and "rate" not in str(e).lower():
+        if "429" not in str(e) and "402" not in str(e) and "rate" not in str(e).lower():
             raise  # not a rate limit error — re-raise immediately
         print(f"  ⚠️  HF rate limited ({e}) — falling back to Gemini...")
  
     # ── Gemini fallback ───────────────────────────────────────────────────────
-    import google.generativeai as genai
-    GEMINI_KEY = os.environ.get("GEMINI_API_KEY", "")
+    from google import genai
+    GEMINI_KEY = os.environ.get("GEMINI_API_KEY", "fake-key")
     if not GEMINI_KEY or GEMINI_KEY == "fake-key":
         raise RuntimeError("HF rate limited and no GEMINI_API_KEY set as fallback.")
-    genai.configure(api_key=GEMINI_KEY)
-    gemini = genai.GenerativeModel("gemini-1.5-flash")
-    response = gemini.generate_content(prompt)
+    genai.Client(api_key=GEMINI_KEY)
+    client = genai.Client()
+    response = client.models.generate_content(
+        model="gemini-3.5-flash",
+        contents=prompt
+        )
     raw = response.text
-    print(f"  Gemini response (raw): {raw[:300]}")
+    print(f"  Gemini response (raw): {raw}")
     return json.loads(repair_json(raw))
 
 # ── Location logic ────────────────────────────────────────────────────────────
@@ -114,19 +114,20 @@ def get_location(d):
     if state is None:
         print("  🌍 No state — picking starting country...")
         data = ai_json(
-            "Pick a random interesting country to start a pastry world tour.\n"
+            "Pick a random interesting country and city to start a pastry world tour.\n"
             "Respond ONLY in raw JSON, no markdown:\n"
-            '{"country": "name", "flag": "emoji", "neighbours": ["country1", "country2", "country3"]}',
+            '{"country": "name", "city": "name", "flag": "emoji", "neighbours": ["country1", "country2", "country3"]}',
             FAKE_START
         )
         return {
             "country":    data["country"],
+            "city":       data["city"],
             "flag":       data["flag"],
             "neighbours": data["neighbours"],
             "arrived_on": str(d),
             "stay_days":  random.randint(2, 4),
             "visited":    [data["country"]],
-        }, True
+        }
 
     days_here = (d - date.fromisoformat(state["arrived_on"])).days
 
@@ -139,14 +140,15 @@ def get_location(d):
             f"A pastry traveller just finished visiting {current_country}.\n"
             f"Known neighbours: {current_neighbours}.\n"
             f"Recently visited (avoid): {visited[-6:]}.\n"
-            "Pick the next country (geographically close, not recently visited).\n"
+            "Pick the next country and city (geographically close, not recently visited).\n"
             "Respond ONLY in raw JSON, no markdown:\n"
-            '{"country": "name", "flag": "emoji", "neighbours": ["list", "of", "neighbours"], '
+            '{"country": "name", "city": "name", "flag": "emoji", "neighbours": ["list", "of", "neighbours"], '
             f'"travel_note": "fun one-liner about crossing from {current_country} to this country"}}',
             FAKE_MOVE
         )
         return {
             "country":     data["country"],
+            "city":        data["city"],
             "flag":        data["flag"],
             "neighbours":  data["neighbours"],
             "arrived_on":  str(d),
@@ -154,38 +156,31 @@ def get_location(d):
             "visited":     (visited + [data["country"]])[-20:],
             "came_from":   state["country"],
             "travel_note": data.get("travel_note", ""),
-        }, True
+        }
 
     print(f"  📍 Day {days_here + 1}/{state['stay_days']} in {state['country']}")
-    return state, False
+    return state
 
 # ── Post generation ───────────────────────────────────────────────────────────
-def generate_post(state, d, season, is_arrival):
+def generate_post(state, d):
+    print(f"\n🥐 Generating post for {state['flag']} {state['country']}...")
     days_here   = (d - date.fromisoformat(state["arrived_on"])).days + 1
     stay_days   = state["stay_days"]
-    came_from   = state.get("came_from", "")
-    travel_note = state.get("travel_note", "")
-
-    if is_arrival and came_from:
-        narrative = f"Just arrived from {came_from}. Travel note: {travel_note}. Reference the arrival."
-    elif days_here == stay_days:
-        narrative = f"Last day in {state['country']} before moving on. Hint at leaving."
-    else:
-        narrative = f"Day {days_here} of {stay_days} in {state['country']}. Settled explorer."
-
-    lighting = "bright sunny warm" if season == "warm" else "soft cozy indoor"
+    flag        = state["flag"]
+    country     = state["country"]
+    city        = state["city"]
 
     return ai_json(
-        f"You run a fun pastry travel Instagram called 'Pastry Traveller'.\n"
-        f"Location: {state['flag']} {state['country']} (day {days_here}/{stay_days})\n"
-        f"Context: {narrative} | Season: {season}\n\n"
-        f"Pick ONE iconic local pastry and create the post.\n"
+        f"You run a pastry travel Instagram.\n"
+        f"Location: {flag} {city}, {country} (day {days_here}/{stay_days})\n"
+        f"Date: {d}\n\n"
+        f"Pick ONE iconic local pastry of {city} if any otherwise another pastry of {country} and create the post.\n"
         f"Respond ONLY in raw JSON, no markdown:\n"
         "{\n"
         '  "pastry_name": "name",\n'
-        f'  "image_prompt": "photorealistic food photo: pastry as hero, iconic landmark of {state["country"]} blurred behind, {lighting} lighting, no snow if warm season, no text, appetizing",\n'
+        f'  "image_prompt": "photorealistic photo of the pastry (characteristics), iconic landmark of {city} blurred behind, no text, appetizing",\n'
         '  "characteristics": ["texture/look", "key flavour", "one quirky fact"],\n'
-        '  "caption": "3-4 short punchy sentences, first person traveller tone, light humour, context-aware, ends with question, hashtags on new line"\n'
+        f'  "caption": "Day {days_here}/{stay_days} in {country} {flag} icon. Short characteristics, Fun/historical fact on the pastry or city with humour, hashtags on new line"\n'
         "}",
         FAKE_POST
     )
@@ -223,7 +218,7 @@ def generate_image(plan, state, d):
         timeout=30
     )
     print(f"  Upload status: {upload.status_code}")
-    print(f"  Upload response: {upload.text[:300]}")
+    print(f"  Upload response: {upload.text}")
     upload.raise_for_status()
     result = upload.json()
     # tmpfiles.org returns {"status": "success", "data": {"url": "https://tmpfiles.org/..."}}
@@ -242,6 +237,7 @@ def refresh_token(token):
     Call this every run — it's idempotent and keeps the token alive indefinitely.
     Saves the (possibly new) token back into traveller_state.json.
     """
+    print("🔑 Refreshing token...")
     if DRY_RUN:
         print("  [DRY-RUN] Skipping token refresh")
         return token
@@ -252,7 +248,7 @@ def refresh_token(token):
     )
     if not r.ok:
         # Non-fatal — log and continue with existing token
-        print(f"  ⚠️  Token refresh failed ({r.status_code}): {r.text[:120]}")
+        print(f"  ⚠️  Token refresh failed ({r.status_code}): {r.text}")
         return token
 
     new_token = r.json().get("access_token", token)
@@ -296,26 +292,14 @@ if __name__ == "__main__":
         sys.exit(0)
 
     d      = date.fromisoformat(date_arg) if date_arg else date.today()
-    season = get_season(d)
     mode   = "DRY-RUN" if DRY_RUN else "LIVE"
 
     print(f"\n🧳 Gourmet Pastry Transformer [{mode}]")
-    print(f"📅 {d}  |  season: {season}\n")
 
-    print("🔑 Refreshing token...")
     TOKEN = refresh_token(TOKEN)
-
-    state, is_arrival = get_location(d)
-
-    print(f"\n🥐 Generating post for {state['flag']} {state['country']}...")
-    plan = generate_post(state, d, season, is_arrival)
-    print(f"   Pastry       : {plan['pastry_name']}")
-    print(f"   Facts        : {plan['characteristics']}")
-    print(f"   Image Prompt : {plan['image_prompt']}")
-    print(f"   Caption      : {plan['caption']}")
-
+    state = get_location(d)
+    plan = generate_post(state, d)
     url     = generate_image(plan, state, d)
-    print(f"   Image URL  : {url}")
     post_id = publish(url, plan['caption'])
 
     if not DRY_RUN:
