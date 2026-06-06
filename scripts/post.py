@@ -240,7 +240,9 @@ def generate_image(plan, state, d):
  
     # ── Pollinations fallback ───────────────────────────────────────────────────────
     prompt = requests.utils.quote(plan["image_prompt"])
-    return f"https://image.pollinations.ai/prompt/{prompt}?width=1080&height=1080&nologo=true&seed={seed}&model=flux"
+    public_url = f"https://image.pollinations.ai/prompt/{prompt}?width=1080&height=1080&nologo=true&seed={seed}&model=flux"
+    print(f"  ✓ Public URL: {public_url}")
+    return public_url
     
 # ── Token refresh ─────────────────────────────────────────────────────────────
 def refresh_token(token):
