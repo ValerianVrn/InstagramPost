@@ -4,6 +4,7 @@ scripts/post.py
   - HF Llama 3.3 70B (free)   → text / JSON generation
   - Gemini API (gemini-3.5-flash)  → (fallback if HF usage limit reached) text / JSON generation
   - HF FLUX.1-schnell (free)  → image generation
+  - Pollinations API (free)   → (fallback if HF usage limit reached) image generation
   - tmpfiles.org (free)       → temporary public image hosting
   - Instagram Graph API       → publishing
 
@@ -196,40 +197,51 @@ def generate_image(plan, state, d):
 
     seed = abs(hash(f"{d}-{state['country']}-{plan['pastry_name']}")) % 99999
 
-    # ── Step A: Generate via Hugging Face (free) ──────────────────────────────
-    print(f"  🎨 Generating image with FLUX (seed {seed})...")
-    hf_client = InferenceClient(provider="hf-inference", api_key=HF_TOKEN)
-    image = hf_client.text_to_image(
-        plan["image_prompt"],
-        model="black-forest-labs/FLUX.1-schnell",
-    )
-    # Convert PIL image → JPEG bytes
-    buffer = io.BytesIO()
-    image.save(buffer, format="JPEG", quality=90)
-    image_bytes = buffer.getvalue()
-    print(f"  ✓ Image generated ({len(image_bytes)//1024}KB)")
+    # ── Try HF first ──────────────────────────────────────────────────────────
+    try:
+        # ── Step A: Generate via Hugging Face (free) ──────────────────────────────
+        print(f"  🎨 Generating image with FLUX (seed {seed})...")
+        hf_client = InferenceClient(provider="hf-inference", api_key=HF_TOKEN)
+        image = hf_client.text_to_image(
+            plan["image_prompt"],
+            model="black-forest-labs/FLUX.1-schnell",
+        )
+        # Convert PIL image → JPEG bytes
+        buffer = io.BytesIO()
+        image.save(buffer, format="JPEG", quality=90)
+        image_bytes = buffer.getvalue()
+        print(f"  ✓ Image generated ({len(image_bytes)//1024}KB)")
 
-    # ── Step B: Upload to tmpfiles.org → permanent public URL ────────────────
-    # file.io has become unreliable; tmpfiles.org is simpler and more stable.
-    print("  ☁️  Uploading image to tmpfiles.org...")
-    upload = requests.post(
-        "https://tmpfiles.org/api/v1/upload",
-        files={"file": ("pastry.jpg", image_bytes, "image/jpeg")},
-        timeout=30
-    )
-    print(f"  Upload status: {upload.status_code}")
-    print(f"  Upload response: {upload.text}")
-    upload.raise_for_status()
-    result = upload.json()
-    # tmpfiles.org returns {"status": "success", "data": {"url": "https://tmpfiles.org/..."}}
-    # The direct file URL replaces /dl/ with nothing — we need the raw file link
-    raw_url = result["data"]["url"]
-    # Convert https://tmpfiles.org/1234/pastry.jpg
-    #      to https://tmpfiles.org/dl/1234/pastry.jpg  (direct download link)
-    public_url = raw_url.replace("tmpfiles.org/", "tmpfiles.org/dl/")
-    print(f"  ✓ Public URL: {public_url}")
-    return public_url
+        # ── Step B: Upload to tmpfiles.org → permanent public URL ────────────────
+        # file.io has become unreliable; tmpfiles.org is simpler and more stable.
+        print("  ☁️  Uploading image to tmpfiles.org...")
+        upload = requests.post(
+            "https://tmpfiles.org/api/v1/upload",
+            files={"file": ("pastry.jpg", image_bytes, "image/jpeg")},
+            timeout=30
+        )
+        print(f"  Upload status: {upload.status_code}")
+        print(f"  Upload response: {upload.text}")
+        upload.raise_for_status()
+        result = upload.json()
+        # tmpfiles.org returns {"status": "success", "data": {"url": "https://tmpfiles.org/..."}}
+        # The direct file URL replaces /dl/ with nothing — we need the raw file link
+        raw_url = result["data"]["url"]
+        # Convert https://tmpfiles.org/1234/pastry.jpg
+        #      to https://tmpfiles.org/dl/1234/pastry.jpg  (direct download link)
+        public_url = raw_url.replace("tmpfiles.org/", "tmpfiles.org/dl/")
+        print(f"  ✓ Public URL: {public_url}")
+        return public_url
 
+    except Exception as e:
+        if "429" not in str(e) and "402" not in str(e) and "rate" not in str(e).lower():
+            raise  # not a rate limit error — re-raise immediately
+        print(f"  ⚠️  HF rate limited ({e}) — falling back to Pollinations...")
+ 
+    # ── Pollinations fallback ───────────────────────────────────────────────────────
+    prompt = requests.utils.quote(plan["image_prompt"])
+    return f"https://image.pollinations.ai/prompt/{prompt}?width=1080&height=1080&nologo=true&seed={seed}&model=flux"
+    
 # ── Token refresh ─────────────────────────────────────────────────────────────
 def refresh_token(token):
     """
