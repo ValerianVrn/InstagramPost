@@ -11,7 +11,7 @@ Each input used to generate the content is saved so that the account fakes a foo
 
 ## Daily post
 
-A Github action (`daily-post.yml`) contains a `cron` task which schedules the main script every day at 9am .
+A Github action (`daily-post.yml`) contains a `cron` task which schedules the main script every day at 9:00am (Paris timezone).
 
 ## AI-generated content
 
