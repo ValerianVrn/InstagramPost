@@ -4,7 +4,6 @@ scripts/post.py
   - HF Llama 3.3 70B (free)   → text / JSON generation
   - Gemini API (gemini-3.5-flash)  → (fallback if HF usage limit reached) text / JSON generation
   - HF FLUX.1-schnell (free)  → image generation
-  - Pollinations API (free)   → (fallback if HF usage limit reached) image generation
   - tmpfiles.org (free)       → temporary public image hosting
   - Instagram Graph API       → publishing
 
@@ -32,11 +31,14 @@ TOKEN       = os.environ.get("IG_ACCESS_TOKEN", "fake-token")
 IG_ID       = os.environ.get("IG_ACCOUNT_ID",   "fake-id")
 IG_SECRET   = os.environ.get("IG_ACCOUNT_SECRET",   "fake-secret")
 HF_TOKEN    = os.environ.get("HF_API_TOKEN", "fake-hf-token")
+GEMINI_KEY = os.environ.get("GEMINI_API_KEY", "fake-key")
+TOGETHER_KEY = os.environ.get("TOGETHER_API_KEY", "fake-together-key")
 HF_MODEL    = "black-forest-labs/FLUX.1-schnell"  # free, fast, high quality
 HF_API      = f"https://api-inference.huggingface.co/models/{HF_MODEL}"
 STATE_FILE  = "traveller_state.json"
 
-hf = None if DRY_RUN else InferenceClient(api_key=HF_TOKEN)
+if not HF_TOKEN or HF_TOKEN == "fake-hf-token":
+    raise RuntimeError("No HF_TOKEN set.")
 
 # ── State ─────────────────────────────────────────────────────────────────────
 def load_state():
@@ -78,6 +80,7 @@ def ai_json(prompt, fake):
  
     # ── Try HF first ──────────────────────────────────────────────────────────
     try:
+        hf = None if DRY_RUN else InferenceClient(api_key=HF_TOKEN)
         response = hf.chat.completions.create(
             model="Qwen/Qwen3-0.6B:featherless-ai",
             # model="meta-llama/Llama-3.3-70B-Instruct:together",
@@ -95,7 +98,6 @@ def ai_json(prompt, fake):
  
     # ── Gemini fallback ───────────────────────────────────────────────────────
     from google import genai
-    GEMINI_KEY = os.environ.get("GEMINI_API_KEY", "fake-key")
     if not GEMINI_KEY or GEMINI_KEY == "fake-key":
         raise RuntimeError("HF rate limited and no GEMINI_API_KEY set as fallback.")
     genai.Client(api_key=GEMINI_KEY)
@@ -197,15 +199,16 @@ def generate_image(plan, state, d):
 
     seed = abs(hash(f"{d}-{state['country']}-{plan['pastry_name']}")) % 99999
 
-    # ── Try HF first ──────────────────────────────────────────────────────────
+    # ── Step A: Generate image ──────────────────────────────
     try:
-        # ── Step A: Generate via Hugging Face (free) ──────────────────────────────
+        # ── Try HF first ──────────────────────────────────────────────────────────
         print(f"  🎨 Generating image with FLUX (seed {seed})...")
         hf_client = InferenceClient(provider="hf-inference", api_key=HF_TOKEN)
         image = hf_client.text_to_image(
             plan["image_prompt"],
             model="black-forest-labs/FLUX.1-schnell",
         )
+        
         # Convert PIL image → JPEG bytes
         buffer = io.BytesIO()
         image.save(buffer, format="JPEG", quality=90)
@@ -232,17 +235,32 @@ def generate_image(plan, state, d):
         public_url = raw_url.replace("tmpfiles.org/", "tmpfiles.org/dl/")
         print(f"  ✓ Public URL: {public_url}")
         return public_url
-
+    
     except Exception as e:
         if "429" not in str(e) and "402" not in str(e) and "rate" not in str(e).lower():
             raise  # not a rate limit error — re-raise immediately
-        print(f"  ⚠️  HF rate limited ({e}) — falling back to Pollinations...")
+        print(f"  ⚠️  HF rate limited ({e}) — falling back to Together AI...")
+        
+    # ── Together AI fallback ───────────────────────────────────────────────────────
+    print(f"  🎨 Generating image via Together AI FLUX.1-schnell (seed {seed})...")
+    if not TOGETHER_KEY or TOGETHER_KEY == "fake-together-token":
+        raise RuntimeError("No TOGETHER_API_KEY set.")
+
+    from together import Together
+    client = Together(api_key=TOGETHER_KEY)  # picks up TOGETHER_API_KEY from env automatically
+    result = client.images.generate(
+        model="black-forest-labs/FLUX.1-schnell",
+        prompt=plan["image_prompt"],
+        width=1024,
+        height=1024,
+        steps=4,
+        seed=seed,
+        n=1,
+    )
+    image_url = result.data[0].url
+    print(f"  ✓ Image URL: {image_url}")
  
-    # ── Pollinations fallback ───────────────────────────────────────────────────────
-    prompt = requests.utils.quote(plan["image_prompt"])
-    public_url = f"https://image.pollinations.ai/prompt/{prompt}?width=1080&height=1080&nologo=true&seed={seed}&model=flux"
-    print(f"  ✓ Public URL: {public_url}")
-    return public_url
+    return image_url
     
 # ── Token refresh ─────────────────────────────────────────────────────────────
 def refresh_token(token):
