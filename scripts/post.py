@@ -29,20 +29,43 @@ IG_ID         = os.environ.get("IG_ACCOUNT_ID",    "fake-id")
 HF_TOKEN      = os.environ.get("HF_API_TOKEN",     "")
 GEMINI_KEY    = os.environ.get("GEMINI_API_KEY",   "")
 TOGETHER_KEY  = os.environ.get("TOGETHER_API_KEY", "")
-STATE_FILE    = "traveller_state.json"
+GIST_ID    = os.environ.get("GIST_ID", "")       # your gist ID
+GH_TOKEN   = os.environ.get("GH_TOKEN", "")      # personal access token (gist scope only)
+GIST_FILE  = "traveller_state.json"
 
 # ── State ─────────────────────────────────────────────────────────────────────
 def load_state():
-    if os.path.exists(STATE_FILE):
-        with open(STATE_FILE) as f:
-            data = json.load(f)
-            return data if data else None
-    return None
+    if DRY_RUN or not GIST_ID:
+        # fall back to local file
+        if os.path.exists("traveller_state.json"):
+            with open("traveller_state.json") as f:
+                data = json.load(f)
+                return data if data else None
+        return None
+
+    r = requests.get(
+        f"https://api.github.com/gists/{GIST_ID}",
+        headers={"Authorization": f"Bearer {GH_TOKEN}"}
+    )
+    r.raise_for_status()
+    content = r.json()["files"][GIST_FILE]["content"]
+    data = json.loads(content)
+    return data if data else None
 
 def save_state(state):
-    with open(STATE_FILE, "w") as f:
-        json.dump(state, f, indent=2)
-    print(f"  State saved → {STATE_FILE}")
+    if DRY_RUN or not GIST_ID:
+        with open("traveller_state.json", "w") as f:
+            json.dump(state, f, indent=2)
+        print("  State saved → local file")
+        return
+
+    r = requests.patch(
+        f"https://api.github.com/gists/{GIST_ID}",
+        headers={"Authorization": f"Bearer {GH_TOKEN}"},
+        json={"files": {GIST_FILE: {"content": json.dumps(state, indent=2)}}}
+    )
+    r.raise_for_status()
+    print(f"  State saved → Gist {GIST_ID}")
 
 # ── Fake responses (dry-run) ──────────────────────────────────────────────────
 FAKE_START = {

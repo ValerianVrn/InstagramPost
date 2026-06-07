@@ -38,6 +38,8 @@ jobs:
           IG_ACCOUNT_SECRET:     ${{ secrets.IG_ACCOUNT_SECRET }}
           GEMINI_API_KEY:     ${{ secrets.GEMINI_API_KEY }}
           TOGETHER_API_KEY:     ${{ secrets.TOGETHER_API_KEY }}
+          GIST_ID:     ${{ secrets.GIST_ID }}
+          GH_TOKEN:     ${{ secrets.GH_TOKEN }}
         run: |
           DATE="${{ github.event.inputs.date_override }}"
           if [ -n "$DATE" ]; then
