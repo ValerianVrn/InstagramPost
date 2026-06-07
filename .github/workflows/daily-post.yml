@@ -2,7 +2,8 @@ name: 🧳 Gourmet Pastry Transformer
 
 on:
   schedule:
-    - cron: "0 9 * * *"   # Every day at 09:00 UTC
+    - cron: "0 9 * * *"   # Every day at 09:00 (Paris time)
+      timeZone: "Europe/Paris"
   workflow_dispatch:
     inputs:
       date_override:
