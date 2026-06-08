@@ -148,6 +148,7 @@ def get_location(d):
             "arrived_on": str(d),
             "stay_days":  random.randint(2, 4),
             "visited":    [data["country"]],
+            "visited_cities":   [data.get("city", data["country"])],
             "posted_pastries":  [],
         }
 
@@ -176,12 +177,36 @@ def get_location(d):
             "arrived_on":  str(d),
             "stay_days":   random.randint(2, 4),
             "visited":     (visited + [data["country"]])[-20:],
+            "visited_cities":   [data.get("city", data["country"])],
             "came_from":   state["country"],
             "travel_note": data.get("travel_note", ""),
             "posted_pastries":  [],   # reset for the new country
         }
 
-    print(f"  📍 Day {days_here + 1}/{state['stay_days']} in {state['city']}, {state['country']}")
+    # ── Same country, new day — pick a different city ─────────────────────────
+    visited_cities = state.get("visited_cities", [state["city"]])
+    current_city   = state["city"]
+    current_country = state["country"]
+ 
+    print(f"  🚆 Day {days_here + 1}/{state['stay_days']} in {current_country} — picking new city...")
+    data = ai_json(
+        f"A pastry traveller is exploring {current_country}.\n"
+        f"Already visited these cities: {visited_cities}.\n"
+        f"Pick a DIFFERENT city to visit today (not in the list above) where a local pastry is famous.\n"
+        "Respond ONLY in raw JSON, no markdown:\n"
+        '{"city": "name", "travel_note": "fun one-liner about the trip from '
+        f'{current_city} to the new city"}}',
+        fake={"city": "Porto", "travel_note": "Hopped on the train south, croissant in hand."},
+        dry_run=DRY_RUN,
+    )
+    new_city = data.get("city", current_city)
+    print(f"  🚆 Moving from {current_city} to {new_city}")
+ 
+    state = dict(state)  # copy to avoid mutating the loaded state
+    state["city"]           = new_city
+    state["visited_cities"] = (visited_cities + [new_city])[-20:]
+    state["travel_note"]    = data.get("travel_note", "")
+    state["posted_pastries"] = []  # new city, new pastries
     return state
 
 # ── Post generation ───────────────────────────────────────────────────────────
