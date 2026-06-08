@@ -197,7 +197,6 @@ def get_location(d):
         '{"city": "name", "travel_note": "fun one-liner about the trip from '
         f'{current_city} to the new city"}}',
         fake={"city": "Porto", "travel_note": "Hopped on the train south, croissant in hand."},
-        dry_run=DRY_RUN,
     )
     new_city = data.get("city", current_city)
     print(f"  🚆 Moving from {current_city} to {new_city}")
