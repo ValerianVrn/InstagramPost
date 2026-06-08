@@ -229,8 +229,8 @@ def generate_post(state, d):
         "{\n"
         '  "pastry_name": "name",\n'
         f'  "image_prompt": "photorealistic photo of the pastry (characteristics), iconic landmark of {city} blurred behind, no text, appetizing",\n'
-        '  "characteristics": ["texture/look", "key flavour", "one quirky or historical fact"],\n'
-        f'  "caption": "Light caption:first mention {city} and day {days_here}/{stay_days} with the flag icon of the country, then fun/historical fact on the pastry or city with humour, hashtags on new line"\n'
+        '  "characteristics": ["one quirky or historical fact"],\n'
+        f'  "caption": "first mention {city} and day {days_here}/{stay_days} with the flag icon of the country, then fun/historical fact on the pastry or city with humour, hashtags on new line"\n'
         "}",
         FAKE_POST
     )
