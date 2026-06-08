@@ -148,6 +148,7 @@ def get_location(d):
             "arrived_on": str(d),
             "stay_days":  random.randint(2, 4),
             "visited":    [data["country"]],
+            "posted_pastries":  [],
         }
 
     days_here = (d - date.fromisoformat(state["arrived_on"])).days
@@ -177,6 +178,7 @@ def get_location(d):
             "visited":     (visited + [data["country"]])[-20:],
             "came_from":   state["country"],
             "travel_note": data.get("travel_note", ""),
+            "posted_pastries":  [],   # reset for the new country
         }
 
     print(f"  📍 Day {days_here + 1}/{state['stay_days']} in {state['city']}, {state['country']}")
@@ -189,10 +191,14 @@ def generate_post(state, d):
     flag       = state["flag"]
     country    = state["country"]
     city       = state["city"]
+    posted_pastries = state.get("posted_pastries", [])
 
+    avoid = f"Already posted in {country} (avoid these): {posted_pastries}.\n" if posted_pastries else ""
+    
     return ai_json(
         f"You run a fun pastry travel Instagram.\n"
         f"Location: {flag} {city}, {country} — day {days_here} of {stay_days}.\n"
+        f"{avoid}\n"
         f"Date: {d}\n\n"
         f"Pick ONE iconic local pastry from {city} (or {country} if none specific to the city).\n"
         "Respond ONLY in raw JSON, no markdown:\n"
@@ -348,6 +354,11 @@ if __name__ == "__main__":
 
     if not DRY_RUN:
         print(f"\n✅ Posted! ID: {post_id}")
+ 
+    # Track posted pastries so we never repeat within the same country
+    posted = state.get("posted_pastries", [])
+    posted.append(plan["pastry_name"])
+    state["posted_pastries"] = posted
 
     save_state(state)
     print("\n✓ Done.\n")
