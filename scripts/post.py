@@ -120,10 +120,21 @@ def ai_json(prompt, fake):
     print("  🤖 Calling Gemini...")
     genai.Client(api_key=GEMINI_KEY)
     client = genai.Client()
-    response = client.models.generate_content(
-        model="gemini-3.5-flash",
-        contents=prompt
-        )
+    try:
+        response = client.models.generate_content(
+            model="gemini-3.5-flash",
+            contents=prompt
+            )
+    except Exception as e:
+        # This model is currently experiencing high demand.
+        is_unavailable = any(code in str(e) for code in ["503"])
+        if not is_unavailable:
+            raise
+        print(f"  ⚠️  gemini-3.5-flash is currently experiencing high demand. — falling back to gemini-2.5-flash...")
+        response = client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=prompt
+            )
     raw = response.text
     print(f"  Gemini response (raw): {raw}")
     return json.loads(repair_json(raw))
