@@ -46,14 +46,18 @@ def ai_json(prompt, fake, dry_run=False):
     if not GEMINI_KEY:
         raise RuntimeError("No HF_API_TOKEN and no GEMINI_API_KEY set.")
 
-    import google.generativeai as genai
-    genai.configure(api_key=GEMINI_KEY)
-
-    for model in ["gemini-2.0-flash", "gemini-1.5-flash"]:
+    from google import genai
+    genai.Client(api_key=GEMINI_KEY)
+    client = genai.Client()
+    for model in ["gemini-3.5-flash", "gemini-2.5-flash"]:
         try:
             print(f"  🤖 Calling Gemini ({model})...")
-            raw = genai.GenerativeModel(model).generate_content(prompt).text
-            print(f"  Raw: {raw[:200]}")
+            response = client.models.generate_content(
+                model=model,
+                contents=prompt
+                )
+            raw = response.text
+            print(f"  Gemini response (raw): {raw}")
             return json.loads(repair_json(raw))
         except Exception as e:
             if not _is_unavailable(e):
