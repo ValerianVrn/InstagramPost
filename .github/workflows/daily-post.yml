@@ -43,7 +43,7 @@ jobs:
         run: |
           DATE="${{ github.event.inputs.date_override }}"
           if [ -n "$DATE" ]; then
-            python scripts/post.py "$DATE"
+            python scripts/gourmet-pastry-transformer/post.py "$DATE"
           else
-            python scripts/post.py
+            python scripts/gourmet-pastry-transformer/post.py
           fi
