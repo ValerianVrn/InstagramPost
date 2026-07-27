@@ -67,6 +67,29 @@ def save_state(state):
     r.raise_for_status()
     print(f"  State saved → Gist {GIST_ID}")
 
+
+def get_visited_countries(state, current_country=None):
+    countries = state.get("visited_countries")
+    if countries is None:
+        countries = state.get("visited", [])
+    if not isinstance(countries, list):
+        countries = [countries] if countries else []
+
+    countries = [country for country in countries if country]
+    seen = set()
+    deduped = []
+    for country in countries:
+        if country not in seen:
+            seen.add(country)
+            deduped.append(country)
+
+    if current_country:
+        if current_country in seen:
+            deduped = [country for country in deduped if country != current_country]
+        deduped.append(current_country)
+
+    return deduped[-20:]
+
 # ── Fake responses (dry-run) ──────────────────────────────────────────────────
 FAKE_START = {
     "country": "Portugal", "city": "Lisbon", "flag": "🇵🇹",
@@ -151,6 +174,7 @@ def get_location(d):
             '{"country": "name", "city": "name", "flag": "emoji", "neighbours": ["country1", "country2", "country3"]}',
             FAKE_START
         )
+        visited_countries = get_visited_countries({}, current_country=data["country"])
         return {
             "country":    data["country"],
             "city":       data.get("city", data["country"]),
@@ -158,7 +182,8 @@ def get_location(d):
             "neighbours": data["neighbours"],
             "arrived_on": str(d),
             "stay_days":  random.randint(2, 4),
-            "visited":    [data["country"]],
+            "visited":    visited_countries,
+            "visited_countries": visited_countries,
             "visited_cities":   [data.get("city", data["country"])],
             "posted_pastries":  [],
         }
@@ -167,19 +192,20 @@ def get_location(d):
 
     if days_here >= state["stay_days"]:
         print(f"  ✈️  {days_here} days in {state['country']} — moving on!")
-        visited             = state.get("visited", [])
         current_country     = state["country"]
         current_neighbours  = state["neighbours"]
+        visited_countries   = get_visited_countries(state, current_country=current_country)
         data = ai_json(
             f"A pastry traveller just finished visiting {current_country}.\n"
             f"Known neighbours: {current_neighbours}.\n"
-            f"Recently visited (avoid): {visited[-6:]}.\n"
+            f"Recently visited (avoid): {visited_countries[-6:]}.\n"
             "Pick the next country and a specific city (geographically close, not recently visited).\n"
             "Respond ONLY in raw JSON, no markdown:\n"
             '{"country": "name", "city": "name", "flag": "emoji", "neighbours": ["country1", "country2"], '
             f'"travel_note": "fun one-liner about crossing from {current_country} to this country"}}',
             FAKE_MOVE
         )
+        visited_countries = get_visited_countries(state, current_country=data["country"])
         return {
             "country":     data["country"],
             "city":        data.get("city", data["country"]),
@@ -187,7 +213,8 @@ def get_location(d):
             "neighbours":  data["neighbours"],
             "arrived_on":  str(d),
             "stay_days":   random.randint(2, 4),
-            "visited":     (visited + [data["country"]])[-20:],
+            "visited":     visited_countries,
+            "visited_countries": visited_countries,
             "visited_cities":   [data.get("city", data["country"])],
             "came_from":   state["country"],
             "travel_note": data.get("travel_note", ""),
@@ -215,6 +242,8 @@ def get_location(d):
     state = dict(state)  # copy to avoid mutating the loaded state
     state["city"]           = new_city
     state["visited_cities"] = (visited_cities + [new_city])[-20:]
+    state["visited_countries"] = get_visited_countries(state, current_country=current_country)
+    state["visited"] = state["visited_countries"]
     state["travel_note"]    = data.get("travel_note", "")
     state["posted_pastries"] = []  # new city, new pastries
     return state
