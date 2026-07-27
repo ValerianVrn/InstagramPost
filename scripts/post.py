@@ -246,7 +246,7 @@ def generate_post(state, d):
         FAKE_POST
     )
 
-# ── Image generation (HF → Together AI fallback) ──────────────────────────────
+# ── Image generation (Together AI) ──────────────────────────────
 def generate_image(plan, state, d):
     if DRY_RUN:
         print("  [DRY-RUN] Skipping image generation")
@@ -254,41 +254,7 @@ def generate_image(plan, state, d):
 
     seed = abs(hash(f"{d}-{state['country']}-{plan['pastry_name']}")) % 99999
 
-    # ── Try HF first ──────────────────────────────────────────────────────────
-    if HF_TOKEN:
-        try:
-            import io
-            from huggingface_hub import InferenceClient
-            print(f"  🎨 Generating image with HF FLUX (seed {seed})...")
-            hf = InferenceClient(provider="hf-inference", api_key=HF_TOKEN)
-            image = hf.text_to_image(
-                plan["image_prompt"],
-                model="black-forest-labs/FLUX.1-schnell",
-            )
-            buf = io.BytesIO()
-            image.save(buf, format="JPEG", quality=90)
-            image_bytes = buf.getvalue()
-            print(f"  ✓ Generated ({len(image_bytes)//1024}KB)")
-
-            print("  ☁️  Uploading to tmpfiles.org...")
-            upload = requests.post(
-                "https://tmpfiles.org/api/v1/upload",
-                files={"file": ("pastry.jpg", image_bytes, "image/jpeg")},
-                timeout=30
-            )
-            upload.raise_for_status()
-            raw_url = upload.json()["data"]["url"]
-            public_url = raw_url.replace("tmpfiles.org/", "tmpfiles.org/dl/")
-            print(f"  ✓ Public URL: {public_url}")
-            return public_url
-
-        except Exception as e:
-            is_rate_limit = any(code in str(e) for code in ["429", "402"])
-            if not is_rate_limit:
-                raise
-            print(f"  ⚠️  HF rate limited — falling back to Together AI...")
-
-    # ── Together AI fallback ──────────────────────────────────────────────────
+    # ── Together AI ──────────────────────────────────────────────────
     if not TOGETHER_KEY:
         raise RuntimeError("No HF_API_TOKEN and no TOGETHER_API_KEY set.")
 
