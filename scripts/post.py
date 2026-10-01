@@ -2,7 +2,7 @@
 scripts/post.py
 🧳 Gourmet Pastry Transformer
   - HF Llama (free)            → text / JSON (Gemini as fallback)
-  - FLUX.1-schnell (free)   → images (withTogether AI)
+  - Flux.2-dev (free)   → images (withTogether AI)
   - Instagram Graph API        → publishing
 
 Usage:
@@ -288,9 +288,9 @@ def generate_image(plan, state, d):
         raise RuntimeError("No HF_API_TOKEN and no TOGETHER_API_KEY set.")
 
     from together import Together
-    print(f"  🎨 Generating image via Together AI FLUX.1-schnell (seed {seed})...")
+    print(f"  🎨 Generating image via Together AI Flux.2-dev (seed {seed})...")
     result = Together(api_key=TOGETHER_KEY).images.generate(
-        model="black-forest-labs/FLUX.1-schnell",
+        model="black-forest-labs/FLUX.2-dev",
         prompt=plan["image_prompt"],
         width=1024,
         height=1024,
